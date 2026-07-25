@@ -9,6 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "calibrate:desktop": "node scripts/desktop-calibration-server.js",
+    "calibrate:desktop:kalimba": "cross-env INSTRUMENT=kalimba node scripts/desktop-calibration-server.js",
     "typecheck": "tsc --noEmit",
     "test:music": "node scripts/test-scale-engine.js",
     "test:mapping": "node scripts/test-audio-mapping.js",
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "cross-env": "^10.1.0",
     "typescript": "~5.8.3"
   }
 }

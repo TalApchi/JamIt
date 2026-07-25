@@ -3,8 +3,44 @@ const http = require("http");
 const path = require("path");
 
 const root = path.resolve(__dirname, "..");
-const calibrationPath = path.join(root, "src", "components", "BambooFlute", "calibration.generated.json");
-const imagePath = path.join(root, "assets", "images", "bamboo-flute-final.png");
+
+const INSTRUMENTS = {
+  flute: {
+    label: "Bamboo Flute",
+    imagePath: path.join(root, "assets", "images", "bamboo-flute-final.png"),
+    calibrationPath: path.join(root, "src", "components", "BambooFlute", "calibration.generated.json"),
+    imageSize: { width: 853, height: 1844 },
+    defaults: [
+      { degree: 1, sourceX: 426, sourceY: 553, visibleRadius: 73, hitRadius: 96, isRoot: true },
+      { degree: 2, sourceX: 426, sourceY: 720, visibleRadius: 51, hitRadius: 76, isRoot: false },
+      { degree: 3, sourceX: 426, sourceY: 870, visibleRadius: 51, hitRadius: 76, isRoot: false },
+      { degree: 4, sourceX: 426, sourceY: 1022, visibleRadius: 51, hitRadius: 76, isRoot: false },
+      { degree: 5, sourceX: 426, sourceY: 1176, visibleRadius: 51, hitRadius: 76, isRoot: false },
+      { degree: 6, sourceX: 426, sourceY: 1331, visibleRadius: 51, hitRadius: 76, isRoot: false },
+      { degree: 7, sourceX: 426, sourceY: 1492, visibleRadius: 51, hitRadius: 76, isRoot: false }
+    ]
+  },
+  kalimba: {
+    label: "Kalimba",
+    imagePath: path.join(root, "assets", "images", "kalimba.png"),
+    calibrationPath: path.join(root, "src", "components", "Kalimba", "calibration.generated.json"),
+    imageSize: { width: 1857, height: 847 },
+    defaults: [
+      { degree: 1, sourceX: 475, sourceY: 402, visibleRadius: 50, hitRadius: 70, isRoot: true },
+      { degree: 2, sourceX: 628, sourceY: 454, visibleRadius: 50, hitRadius: 70, isRoot: false },
+      { degree: 3, sourceX: 781, sourceY: 503, visibleRadius: 50, hitRadius: 70, isRoot: false },
+      { degree: 4, sourceX: 934, sourceY: 539, visibleRadius: 50, hitRadius: 70, isRoot: false },
+      { degree: 5, sourceX: 1087, sourceY: 503, visibleRadius: 50, hitRadius: 70, isRoot: false },
+      { degree: 6, sourceX: 1240, sourceY: 454, visibleRadius: 50, hitRadius: 70, isRoot: false },
+      { degree: 7, sourceX: 1393, sourceY: 402, visibleRadius: 50, hitRadius: 70, isRoot: false }
+    ]
+  }
+};
+
+const instrumentId = process.env.INSTRUMENT === "kalimba" ? "kalimba" : "flute";
+const instrumentConfig = INSTRUMENTS[instrumentId];
+const calibrationPath = instrumentConfig.calibrationPath;
+const imagePath = instrumentConfig.imagePath;
 const port = Number(process.env.PORT || 4174);
 
 function sendJson(response, value) {
@@ -43,7 +79,7 @@ const page = `<!doctype html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>JamIt Bamboo Flute Calibration</title>
+    <title>JamIt ${instrumentConfig.label} Calibration</title>
     <style>
       * { box-sizing: border-box; }
       body {
@@ -62,7 +98,7 @@ const page = `<!doctype html>
       .stage {
         position: relative;
         height: min(94vh, 920px);
-        aspect-ratio: 853 / 1844;
+        aspect-ratio: ${instrumentConfig.imageSize.width} / ${instrumentConfig.imageSize.height};
         overflow: hidden;
         border-radius: 34px;
         box-shadow: 0 22px 80px rgba(0, 0, 0, 0.55);
@@ -152,7 +188,7 @@ const page = `<!doctype html>
   </head>
   <body>
     <div class="stage" id="stage">
-      <img src="/image" alt="Bamboo flute app background" />
+      <img src="/image" alt="${instrumentConfig.label} app background" />
     </div>
     <aside>
       <h1>Desktop Calibration</h1>
@@ -168,16 +204,8 @@ const page = `<!doctype html>
       <p class="status" id="status"></p>
     </aside>
     <script>
-      const IMAGE_SIZE = { width: 853, height: 1844 };
-      const defaults = [
-        { degree: 1, sourceX: 426, sourceY: 553, visibleRadius: 73, hitRadius: 96, isRoot: true },
-        { degree: 2, sourceX: 426, sourceY: 720, visibleRadius: 51, hitRadius: 76, isRoot: false },
-        { degree: 3, sourceX: 426, sourceY: 870, visibleRadius: 51, hitRadius: 76, isRoot: false },
-        { degree: 4, sourceX: 426, sourceY: 1022, visibleRadius: 51, hitRadius: 76, isRoot: false },
-        { degree: 5, sourceX: 426, sourceY: 1176, visibleRadius: 51, hitRadius: 76, isRoot: false },
-        { degree: 6, sourceX: 426, sourceY: 1331, visibleRadius: 51, hitRadius: 76, isRoot: false },
-        { degree: 7, sourceX: 426, sourceY: 1492, visibleRadius: 51, hitRadius: 76, isRoot: false }
-      ];
+      const IMAGE_SIZE = ${JSON.stringify(instrumentConfig.imageSize)};
+      const defaults = ${JSON.stringify(instrumentConfig.defaults)};
       const stage = document.getElementById("stage");
       const statusEl = document.getElementById("status");
       let holes = defaults.map((hole) => ({ ...hole }));
@@ -349,5 +377,5 @@ const server = http.createServer(async (request, response) => {
 });
 
 server.listen(port, "127.0.0.1", () => {
-  console.log(`Desktop calibration running at http://127.0.0.1:${port}`);
+  console.log(`Desktop ${instrumentConfig.label} calibration running at http://127.0.0.1:${port}`);
 });
