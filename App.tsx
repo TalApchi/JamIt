@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import * as ScreenOrientation from "expo-screen-orientation";
 import { BambooFluteScreen } from "./src/screens/BambooFluteScreen";
 import { KalimbaScreen } from "./src/screens/KalimbaScreen";
 import { InstrumentSelectionScreen, Instrument } from "./src/screens/InstrumentSelectionScreen";
@@ -22,6 +23,17 @@ export default function App() {
   const [mode, setMode] = useState<ScaleMode>("major");
 
   const scaleName = useMemo(() => getScaleName(rootNote, mode), [rootNote, mode]);
+
+  // Only the Kalimba's own play screen wants landscape (it locks to it
+  // itself); every other screen in the app — including this one — is
+  // portrait-only. app.json can no longer hard-lock the whole app to
+  // portrait (the Kalimba needs to unlock into landscape), so the root
+  // locks portrait explicitly here instead, once, for the app's lifetime.
+  useEffect(() => {
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch((error) => {
+      console.warn("Unable to lock app root to portrait", error);
+    });
+  }, []);
 
   if (phase === "instrument") {
     return (

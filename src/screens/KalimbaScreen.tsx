@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import * as ScreenOrientation from "expo-screen-orientation";
 import { KalimbaInstrument } from "../components/Kalimba/KalimbaInstrument";
 import { RootNote, ScaleMode } from "../music/scaleEngine";
 
@@ -18,6 +19,20 @@ export function KalimbaScreen({
   onExit,
   onExitCalibration
 }: Props) {
+  // The Kalimba background image is landscape (1857x847); the rest of the
+  // app is portrait, so this screen locks to landscape on mount and
+  // restores portrait on unmount instead of relying on the phone's physical
+  // rotation.
+  useEffect(() => {
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE).catch((error) => {
+      console.warn("Unable to lock Kalimba screen to landscape", error);
+    });
+
+    return () => {
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => undefined);
+    };
+  }, []);
+
   return (
     <View style={styles.screen}>
       <KalimbaInstrument

@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import * as ScreenOrientation from "expo-screen-orientation";
 import { BambooFluteInstrument } from "../components/BambooFlute/BambooFluteInstrument";
 import { RootNote, ScaleMode } from "../music/scaleEngine";
 
@@ -18,6 +19,19 @@ export function BambooFluteScreen({
   onExit,
   onExitCalibration
 }: Props) {
+  // Explicit portrait lock: app.json no longer statically forces portrait
+  // (the Kalimba screen needs landscape), so this screen locks its own
+  // orientation instead of relying on that app-wide default.
+  useEffect(() => {
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch((error) => {
+      console.warn("Unable to lock Bamboo Flute screen to portrait", error);
+    });
+
+    return () => {
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => undefined);
+    };
+  }, []);
+
   return (
     <View style={styles.screen}>
       <BambooFluteInstrument
