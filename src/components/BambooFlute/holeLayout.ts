@@ -1,15 +1,7 @@
-import {
-  CalibratedPad,
-  RenderedImageFrame,
-  containerPointToSource,
-  getCoverFrame as getSharedCoverFrame,
-  sourcePointToContainer
-} from "../shared/padLayout";
+import { CalibratedPad } from "../shared/padLayout";
 
 export type FluteHoleLayout = CalibratedPad;
 export type CalibratedFluteHole = CalibratedPad;
-export type { RenderedImageFrame };
-export { containerPointToSource, sourcePointToContainer };
 
 export const BAMBOO_FLUTE_IMAGE_SIZE = {
   width: 853,
@@ -25,12 +17,6 @@ export const BAMBOO_FLUTE_HOLES: FluteHoleLayout[] = [
   { degree: 6, sourceX: 426, sourceY: 1331, visibleRadius: 51, hitRadius: 76, isRoot: false },
   { degree: 7, sourceX: 426, sourceY: 1492, visibleRadius: 51, hitRadius: 76, isRoot: false }
 ];
-
-// Preserves the Flute's original 2-argument call signature for its existing
-// caller (BambooFluteInstrument.tsx, until a later task replaces it).
-export function getCoverFrame(containerWidth: number, containerHeight: number): RenderedImageFrame {
-  return getSharedCoverFrame(containerWidth, containerHeight, BAMBOO_FLUTE_IMAGE_SIZE);
-}
 
 export function cloneDefaultFluteHoles(): CalibratedFluteHole[] {
   return BAMBOO_FLUTE_HOLES.map((hole) => ({ ...hole }));
