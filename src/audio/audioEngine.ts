@@ -41,12 +41,18 @@ type LoadedNote = {
   activeTouchCount: number;
   // Bumped on every note-on to cancel an in-flight release fade.
   generation: number;
-  // Retry timer for re-applying rate/pitch config until the source is loaded.
+  // Retry timer for re-applying rate/pitch config over a short window after
+  // every note-on (see ensurePitchConfig).
   configRetryTimer?: ReturnType<typeof setTimeout>;
 };
 
 const RELEASE_FADE_STEPS = 3;
 const RELEASE_FADE_STEP_MS = 9;
+// How long/hard to keep reasserting rate/pitch config after every note-on
+// (see ensurePitchConfig). 6 attempts x 60ms = 360ms of coverage past the
+// point playback actually starts.
+const PITCH_REASSERT_ATTEMPTS = 6;
+const PITCH_REASSERT_INTERVAL_MS = 60;
 
 const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
@@ -125,17 +131,35 @@ export class AudioEngine {
     }
 
     loaded.player.volume = loaded.sample.volume;
+    // Applied once now — this is NOT just a hedge: expo-audio's native
+    // play() reads back whatever rate this call last stored (there is no
+    // separate "rate to start at" argument), so skipping this would start
+    // every note at the wrong rate for at least one frame. Applied AGAIN
+    // right after seekTo(0) resolves, because expo-audio exposes no direct
+    // signal for "the native player item has finished its own internal
+    // readiness transition" (relevant on a brand new item from
+    // replace()/createAudioPlayer) — a resolved seek is the best available
+    // proxy, since seeking requires the item to already know its own
+    // timing. Setting the pitch ALGORITHM (as opposed to the rate value)
+    // before that transition completes is not reliable — iOS can silently
+    // reset AVPlayerItem.audioTimePitchAlgorithm back to its own
+    // pitch-CORRECTING default during that transition, which is invisible
+    // to `isLoaded` and to `shouldCorrectPitch` (a JS-side echo of what we
+    // last requested, not a live read of the native item) alike. The result
+    // when it happens: the sample genuinely plays at the different rate
+    // (confirmed by a live rate read in verifyAppliedConfig below) while
+    // iOS cancels out the resulting pitch shift — two different logged
+    // rates sounding identical.
     this.applyPitchConfig(loaded);
     await loaded.player.seekTo(0);
+    this.applyPitchConfig(loaded);
     loaded.player.play();
 
-    // If the source is still loading (first press right after a scale
-    // change, or just after a replace()), the rate/pitch config applied
-    // above may have landed on a player item that does not exist yet; keep
-    // re-applying until loaded.
-    if (!loaded.player.isLoaded) {
-      this.ensurePitchConfig(loaded);
-    }
+    // Keep reasserting for a short window after playback starts regardless
+    // of `isLoaded` — that flag turning true does not guarantee the pitch
+    // algorithm survived the item's readiness transition, so this is not
+    // conditioned on it the way it used to be.
+    this.ensurePitchConfig(loaded);
     this.verifyAppliedConfig(loaded);
   }
 
@@ -182,16 +206,31 @@ export class AudioEngine {
     loaded.player.setPlaybackRate(loaded.sample.playbackRate);
   }
 
-  // Re-applies the config until the player reports its source as loaded, so
-  // the settings are guaranteed to land on the final player item.
-  private ensurePitchConfig(loaded: LoadedNote, attempt = 0) {
+  // Re-applies the config a fixed number of times over a short window,
+  // regardless of `isLoaded`. This deliberately does NOT stop as soon as
+  // `isLoaded` turns true: that flag can turn true while the pitch
+  // algorithm has already been (or is about to be) silently reset by iOS
+  // during the item's own readiness transition, so "loaded" is not a
+  // trustworthy stopping signal for this specific setting.
+  //
+  // `generation` is captured once (from the current value at the first
+  // call, either loadNote's preload or play()'s note-on) and compared on
+  // every retry: if the note has moved on since — released (fadeOutAndPause
+  // bumps generation) or retriggered (play() bumps it again and starts its
+  // own fresh chain) — this stale chain stops instead of continuing to burn
+  // bridge calls on behalf of an epoch that no longer matters.
+  private ensurePitchConfig(loaded: LoadedNote, attempt = 0, generation: number = loaded.generation) {
     if (this.notes.get(loaded.note.key) !== loaded) return;
+    if (loaded.generation !== generation) return;
 
     this.applyPitchConfig(loaded);
-    if (loaded.player.isLoaded || attempt >= 20) return;
+    if (attempt >= PITCH_REASSERT_ATTEMPTS) return;
 
     if (loaded.configRetryTimer) clearTimeout(loaded.configRetryTimer);
-    loaded.configRetryTimer = setTimeout(() => this.ensurePitchConfig(loaded, attempt + 1), 150);
+    loaded.configRetryTimer = setTimeout(
+      () => this.ensurePitchConfig(loaded, attempt + 1, generation),
+      PITCH_REASSERT_INTERVAL_MS
+    );
   }
 
   // Debug evidence for every note-on: logs the rate/pitch mode the player is
@@ -202,6 +241,13 @@ export class AudioEngine {
       if (loaded.generation !== generation || this.notes.get(loaded.note.key) !== loaded) return;
 
       const intended = loaded.sample.playbackRate;
+      // `applied` is a genuine live read (backed by the native player's
+      // actual rate). `pitchCorrection` is NOT: expo-audio only echoes back
+      // the value we last set, not the live native audioTimePitchAlgorithm,
+      // so this can read `false` (our own request) even if iOS silently
+      // reset the real pitch algorithm — that mismatch is exactly the bug
+      // ensurePitchConfig's unconditional reassertion window defends
+      // against, but it is real and this log cannot detect it directly.
       const applied = loaded.player.playbackRate;
       const pitchCorrection = loaded.player.shouldCorrectPitch;
       const ok = Math.abs(applied - intended) < 0.005 && !pitchCorrection;

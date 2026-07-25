@@ -24,6 +24,9 @@ export function KalimbaInstrument(props: Props) {
       defaultPads={cloneDefaultKalimbaHoles()}
       resolveSample={resolveKalimbaSample}
       calibrationStore={kalimbaCalibrationStore}
+      // A real kalimba tine sounds the instant it's plucked — no hold delay,
+      // unlike the Flute's breath-instrument feel.
+      noteStartHoldMs={0}
     />
   );
 }

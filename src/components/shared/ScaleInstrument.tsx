@@ -40,6 +40,12 @@ export type ScaleInstrumentProps = {
   defaultPads: CalibratedPad[];
   resolveSample: SampleResolver;
   calibrationStore: CalibrationStore;
+  // Milliseconds a touch must hold before a note starts sounding (a shorter
+  // tap stays silent). Defaults to NOTE_START_HOLD_MS, matching the Flute's
+  // breath-instrument feel. Pass 0 for an instrument (like a plucked
+  // Kalimba) where every tap, however brief, should sound immediately on
+  // touch-down.
+  noteStartHoldMs?: number;
 };
 
 type ActiveTouch = {
@@ -53,8 +59,10 @@ type ActiveTouch = {
 type CalibrationDragMode = "move" | "resize";
 
 const HIT_ZONE_GAP = 4;
-// A press shorter than this is a "quick tap" and stays silent; holding past
-// it starts the note. Slides after this window switch notes instantly.
+// Default hold-to-play threshold (a press shorter than this is a "quick tap"
+// and stays silent; holding past it starts the note; slides after this
+// window switch notes instantly). Instruments can override via the
+// `noteStartHoldMs` prop — see its doc comment.
 const NOTE_START_HOLD_MS = 90;
 
 export function ScaleInstrument({
@@ -67,7 +75,8 @@ export function ScaleInstrument({
   imageSize,
   defaultPads,
   resolveSample,
-  calibrationStore
+  calibrationStore,
+  noteStartHoldMs = NOTE_START_HOLD_MS
 }: ScaleInstrumentProps) {
   const audioEngine = useRef(new AudioEngine(resolveSample)).current;
   const activeTouches = useRef(new Map<string, ActiveTouch>());
@@ -310,15 +319,22 @@ export function ScaleInstrument({
       activeTouches.current.set(touchId, active);
       if (!note) return;
 
+      // noteStartHoldMs === 0 (a plucked instrument like the Kalimba):
+      // sound immediately on touch-down, no hold delay at all.
+      if (noteStartHoldMs <= 0) {
+        startNoteForTouch(touchId, active);
+        return;
+      }
+
       active.startTimer = setTimeout(() => {
         active.startTimer = undefined;
         // Only start if this touch is still down and still aimed at a hole.
         if (activeTouches.current.get(touchId) === active && active.note) {
           startNoteForTouch(touchId, active);
         }
-      }, NOTE_START_HOLD_MS);
+      }, noteStartHoldMs);
     },
-    [findHoleDegreeAtPoint, getPlayableNote, isCalibrationMode, startNoteForTouch]
+    [findHoleDegreeAtPoint, getPlayableNote, isCalibrationMode, noteStartHoldMs, startNoteForTouch]
   );
 
   const handleTouchMove = useCallback(
@@ -348,9 +364,11 @@ export function ScaleInstrument({
       // Not sounding yet. A pending start timer just retargets to the new
       // hole (it reads active.note when it fires). Otherwise start now if the
       // quick-tap window already passed, or schedule the remainder of it.
+      // (noteStartHoldMs === 0 always takes this immediate branch, since
+      // elapsed >= 0 is always true.)
       if (active.startTimer) return;
       const elapsed = Date.now() - active.startedAt;
-      if (elapsed >= NOTE_START_HOLD_MS) {
+      if (elapsed >= noteStartHoldMs) {
         startNoteForTouch(touchId, active);
         return;
       }
@@ -359,9 +377,9 @@ export function ScaleInstrument({
         if (activeTouches.current.get(touchId) === active && active.note) {
           startNoteForTouch(touchId, active);
         }
-      }, NOTE_START_HOLD_MS - elapsed);
+      }, noteStartHoldMs - elapsed);
     },
-    [findHoleDegreeAtPoint, getPlayableNote, isCalibrationMode, startNoteForTouch]
+    [findHoleDegreeAtPoint, getPlayableNote, isCalibrationMode, noteStartHoldMs, startNoteForTouch]
   );
 
   const handleTouchEnd = useCallback(
