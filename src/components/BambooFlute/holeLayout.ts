@@ -1,13 +1,15 @@
-export type FluteHoleLayout = {
-  degree: number;
-  sourceX: number;
-  sourceY: number;
-  visibleRadius: number;
-  hitRadius: number;
-  isRoot: boolean;
-};
+import {
+  CalibratedPad,
+  RenderedImageFrame,
+  containerPointToSource,
+  getCoverFrame as getSharedCoverFrame,
+  sourcePointToContainer
+} from "../shared/padLayout";
 
-export type CalibratedFluteHole = FluteHoleLayout;
+export type FluteHoleLayout = CalibratedPad;
+export type CalibratedFluteHole = CalibratedPad;
+export type { RenderedImageFrame };
+export { containerPointToSource, sourcePointToContainer };
 
 export const BAMBOO_FLUTE_IMAGE_SIZE = {
   width: 853,
@@ -24,43 +26,10 @@ export const BAMBOO_FLUTE_HOLES: FluteHoleLayout[] = [
   { degree: 7, sourceX: 426, sourceY: 1492, visibleRadius: 51, hitRadius: 76, isRoot: false }
 ];
 
-export type RenderedImageFrame = {
-  width: number;
-  height: number;
-  offsetX: number;
-  offsetY: number;
-  scale: number;
-};
-
+// Preserves the Flute's original 2-argument call signature for its existing
+// caller (BambooFluteInstrument.tsx, until a later task replaces it).
 export function getCoverFrame(containerWidth: number, containerHeight: number): RenderedImageFrame {
-  const scale = Math.max(
-    containerWidth / BAMBOO_FLUTE_IMAGE_SIZE.width,
-    containerHeight / BAMBOO_FLUTE_IMAGE_SIZE.height
-  );
-  const width = BAMBOO_FLUTE_IMAGE_SIZE.width * scale;
-  const height = BAMBOO_FLUTE_IMAGE_SIZE.height * scale;
-
-  return {
-    width,
-    height,
-    offsetX: (containerWidth - width) / 2,
-    offsetY: (containerHeight - height) / 2,
-    scale
-  };
-}
-
-export function sourcePointToContainer(sourceX: number, sourceY: number, frame: RenderedImageFrame) {
-  return {
-    x: frame.offsetX + sourceX * frame.scale,
-    y: frame.offsetY + sourceY * frame.scale
-  };
-}
-
-export function containerPointToSource(containerX: number, containerY: number, frame: RenderedImageFrame) {
-  return {
-    sourceX: (containerX - frame.offsetX) / frame.scale,
-    sourceY: (containerY - frame.offsetY) / frame.scale
-  };
+  return getSharedCoverFrame(containerWidth, containerHeight, BAMBOO_FLUTE_IMAGE_SIZE);
 }
 
 export function cloneDefaultFluteHoles(): CalibratedFluteHole[] {
