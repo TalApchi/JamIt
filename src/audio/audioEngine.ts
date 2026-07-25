@@ -111,6 +111,14 @@ export class AudioEngine {
     if (loaded.activeTouchCount > 1) return;
 
     loaded.generation += 1;
+
+    if (loaded.activeTakeIndex >= 0) {
+      const previousTake = loaded.takes[loaded.activeTakeIndex];
+      previousTake.player.pause();
+      await previousTake.player.seekTo(0);
+      previousTake.player.volume = loaded.sample.volume;
+    }
+
     loaded.activeTakeIndex = (loaded.activeTakeIndex + 1) % loaded.takes.length;
     const take = loaded.takes[loaded.activeTakeIndex];
 
