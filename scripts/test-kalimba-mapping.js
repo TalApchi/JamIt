@@ -54,6 +54,13 @@ for (const root of CHROMATIC_NOTES) {
         `${label}: playbackRate matches shift`,
         Math.abs(resolved.playbackRate - Math.pow(2, resolved.semitoneShift / 12)) < 1e-9
       );
+
+      const chosenDistance = Math.abs(degree.midi - resolved.def.midi);
+      const isNearest = KALIMBA_TINE_DEFS.every(
+        (tine) => Math.abs(degree.midi - tine.midi) >= chosenDistance
+      );
+      check(`${label}: resolver picked the nearest tine by MIDI distance`, isNearest);
+
       soundingPitches.add(sounding);
     });
 
