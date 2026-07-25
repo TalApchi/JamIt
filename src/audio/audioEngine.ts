@@ -3,32 +3,42 @@ import {
   createAudioPlayer,
   setAudioModeAsync
 } from "expo-audio";
-import { ResolvedFluteSample, resolveFluteSample } from "./fluteSamples";
+import { ResolvedSample, SampleResolver } from "./sampleTypes";
 
 export type ActiveSoundId = string;
 
 export type PlayableNote = {
   key: string;
   scaleName: string;
-  holeIndex: number;
+  padIndex: number;
   noteWithOctave: string;
   midi: number;
 };
 
-export type AudioNoteDebugInfo = ResolvedFluteSample & PlayableNote;
+export type AudioNoteDebugInfo = ResolvedSample & PlayableNote;
+
+type LoadedTake = {
+  player: AudioPlayer;
+  source: number;
+  // Retry timer for re-applying rate/pitch config until this take's source
+  // is loaded.
+  configRetryTimer?: ReturnType<typeof setTimeout>;
+};
 
 type LoadedNote = {
   note: PlayableNote;
-  sample: ResolvedFluteSample;
-  player: AudioPlayer;
+  sample: ResolvedSample;
+  takes: LoadedTake[];
+  // Index into `takes` most recently started; -1 before the first note-on.
+  // Round-robin: each true note-on (the 0 -> 1 activeTouchCount transition)
+  // advances to the next take, cycling back to 0 after the last.
+  activeTakeIndex: number;
   // Number of touches currently holding this note. The note starts on the
   // 0 -> 1 transition and stops on the 1 -> 0 transition, so a second finger
   // on the same hole never retriggers and never cuts the first finger off.
   activeTouchCount: number;
   // Bumped on every note-on to cancel an in-flight release fade.
   generation: number;
-  // Retry timer for re-applying rate/pitch config until the source is loaded.
-  configRetryTimer?: ReturnType<typeof setTimeout>;
 };
 
 const RELEASE_FADE_STEPS = 3;
@@ -40,6 +50,8 @@ export class AudioEngine {
   private readonly notes = new Map<string, LoadedNote>();
   private readonly activeTouches = new Map<ActiveSoundId, string>();
   private isReady = false;
+
+  constructor(private readonly resolveSample: SampleResolver) {}
 
   async preload() {
     if (this.isReady) return;
@@ -63,8 +75,7 @@ export class AudioEngine {
     const wantedKeys = new Set(notes.map((note) => note.key));
     [...this.notes.entries()].forEach(([key, loaded]) => {
       if (wantedKeys.has(key)) return;
-      if (loaded.configRetryTimer) clearTimeout(loaded.configRetryTimer);
-      loaded.player.remove();
+      this.disposeNote(loaded);
       this.notes.delete(key);
     });
 
@@ -76,7 +87,7 @@ export class AudioEngine {
   }
 
   getDebugInfo(note: PlayableNote): AudioNoteDebugInfo {
-    const sample = resolveFluteSample(note.midi);
+    const sample = this.resolveSample(note.midi);
     return {
       ...sample,
       ...note
@@ -100,18 +111,21 @@ export class AudioEngine {
     if (loaded.activeTouchCount > 1) return;
 
     loaded.generation += 1;
-    loaded.player.volume = loaded.sample.volume;
-    this.applyPitchConfig(loaded);
-    await loaded.player.seekTo(0);
-    loaded.player.play();
+    loaded.activeTakeIndex = (loaded.activeTakeIndex + 1) % loaded.takes.length;
+    const take = loaded.takes[loaded.activeTakeIndex];
+
+    take.player.volume = loaded.sample.volume;
+    this.applyPitchConfig(take, loaded.sample);
+    await take.player.seekTo(0);
+    take.player.play();
 
     // If the source is still loading (first press right after a scale
     // change), the rate/pitch config applied above may have landed on a
     // player item that does not exist yet; keep re-applying until loaded.
-    if (!loaded.player.isLoaded) {
-      this.ensurePitchConfig(loaded);
+    if (!take.player.isLoaded) {
+      this.ensurePitchConfig(loaded, take);
     }
-    this.verifyAppliedConfig(loaded);
+    this.verifyAppliedConfig(loaded, take);
   }
 
   async stop(id: ActiveSoundId) {
@@ -125,7 +139,8 @@ export class AudioEngine {
     loaded.activeTouchCount = Math.max(0, loaded.activeTouchCount - 1);
     if (loaded.activeTouchCount > 0) return;
 
-    await this.fadeOutAndPause(loaded);
+    const take = loaded.takes[loaded.activeTakeIndex];
+    await this.fadeOutAndPause(loaded, take);
   }
 
   async stopAll() {
@@ -135,107 +150,115 @@ export class AudioEngine {
 
   async unload() {
     await this.stopAll();
-    [...this.notes.values()].forEach((loaded) => {
-      if (loaded.configRetryTimer) clearTimeout(loaded.configRetryTimer);
-      loaded.player.remove();
-    });
+    [...this.notes.values()].forEach((loaded) => this.disposeNote(loaded));
     this.notes.clear();
     this.isReady = false;
+  }
+
+  private disposeNote(loaded: LoadedNote) {
+    loaded.takes.forEach((take) => {
+      if (take.configRetryTimer) clearTimeout(take.configRetryTimer);
+      take.player.remove();
+    });
   }
 
   // Rate and pitch mode must hold on every platform quirk: expo-audio's
   // `replace()` after downloadFirst discards them (web rebuilds the media
   // element; iOS creates a new AVPlayerItem whose pitch algorithm defaults to
   // pitch-CORRECTING; Android defaults preservesPitch=true). If they are
-  // lost, the hole plays the raw source pitch — which makes holes sharing a
+  // lost, the pad plays the raw source pitch — which makes pads sharing a
   // source sound identical and breaks adjacent intervals.
-  private applyPitchConfig(loaded: LoadedNote) {
-    loaded.player.loop = false;
-    loaded.player.shouldCorrectPitch = false;
-    loaded.player.setPlaybackRate(loaded.sample.playbackRate);
+  private applyPitchConfig(take: LoadedTake, sample: ResolvedSample) {
+    take.player.loop = false;
+    take.player.shouldCorrectPitch = false;
+    take.player.setPlaybackRate(sample.playbackRate);
   }
 
   // Re-applies the config until the player reports its source as loaded, so
   // the settings are guaranteed to land on the final player item.
-  private ensurePitchConfig(loaded: LoadedNote, attempt = 0) {
+  private ensurePitchConfig(loaded: LoadedNote, take: LoadedTake, attempt = 0) {
     if (this.notes.get(loaded.note.key) !== loaded) return;
 
-    this.applyPitchConfig(loaded);
-    if (loaded.player.isLoaded || attempt >= 20) return;
+    this.applyPitchConfig(take, loaded.sample);
+    if (take.player.isLoaded || attempt >= 20) return;
 
-    if (loaded.configRetryTimer) clearTimeout(loaded.configRetryTimer);
-    loaded.configRetryTimer = setTimeout(() => this.ensurePitchConfig(loaded, attempt + 1), 150);
+    if (take.configRetryTimer) clearTimeout(take.configRetryTimer);
+    take.configRetryTimer = setTimeout(() => this.ensurePitchConfig(loaded, take, attempt + 1), 150);
   }
 
   // Debug evidence for every note-on: logs the rate/pitch mode the player is
   // ACTUALLY using shortly after the note starts, and heals any mismatch.
-  private verifyAppliedConfig(loaded: LoadedNote) {
+  private verifyAppliedConfig(loaded: LoadedNote, take: LoadedTake) {
     const generation = loaded.generation;
     setTimeout(() => {
       if (loaded.generation !== generation || this.notes.get(loaded.note.key) !== loaded) return;
 
       const intended = loaded.sample.playbackRate;
-      const applied = loaded.player.playbackRate;
-      const pitchCorrection = loaded.player.shouldCorrectPitch;
+      const applied = take.player.playbackRate;
+      const pitchCorrection = take.player.shouldCorrectPitch;
       const ok = Math.abs(applied - intended) < 0.005 && !pitchCorrection;
       console.log(
         [
           "[AudioEngine verify]",
-          `hole=${loaded.note.holeIndex}`,
+          `pad=${loaded.note.padIndex}`,
           `target=${loaded.note.noteWithOctave}`,
-          `source=${loaded.sample.sourceFilename}`,
+          `source=${loaded.sample.sourceFilenames[loaded.activeTakeIndex]}`,
           `intendedRate=${intended.toFixed(4)}`,
           `appliedRate=${applied.toFixed(4)}`,
           `pitchCorrection=${pitchCorrection}`,
-          `loaded=${loaded.player.isLoaded}`,
+          `loaded=${take.player.isLoaded}`,
           ok ? "OK" : "MISMATCH -> re-applying"
         ].join(" ")
       );
       if (!ok) {
-        this.ensurePitchConfig(loaded);
+        this.ensurePitchConfig(loaded, take);
       }
     }, 150);
   }
 
   // Short volume ramp before pausing so releases do not click.
-  private async fadeOutAndPause(loaded: LoadedNote) {
+  private async fadeOutAndPause(loaded: LoadedNote, take: LoadedTake) {
     const generation = ++loaded.generation;
     const startVolume = loaded.sample.volume;
 
     for (let step = 1; step <= RELEASE_FADE_STEPS; step++) {
-      loaded.player.volume = startVolume * (1 - step / RELEASE_FADE_STEPS);
+      take.player.volume = startVolume * (1 - step / RELEASE_FADE_STEPS);
       await delay(RELEASE_FADE_STEP_MS);
       if (loaded.generation !== generation) return;
     }
 
-    loaded.player.pause();
-    await loaded.player.seekTo(0);
+    take.player.pause();
+    await take.player.seekTo(0);
     if (loaded.generation === generation) {
-      loaded.player.volume = startVolume;
+      take.player.volume = startVolume;
     }
   }
 
   private loadNote(note: PlayableNote) {
-    const sample = resolveFluteSample(note.midi);
-    const player = createAudioPlayer(sample.source, {
-      downloadFirst: true,
-      keepAudioSessionActive: true,
-      updateInterval: 100
+    const sample = this.resolveSample(note.midi);
+    const takes: LoadedTake[] = sample.sources.map((source) => {
+      const player = createAudioPlayer(source, {
+        downloadFirst: true,
+        keepAudioSessionActive: true,
+        updateInterval: 100
+      });
+      player.volume = sample.volume;
+      return { player, source };
     });
-    player.volume = sample.volume;
 
     const loaded: LoadedNote = {
       note,
       sample,
-      player,
+      takes,
+      activeTakeIndex: -1,
       activeTouchCount: 0,
       generation: 0
     };
     this.notes.set(note.key, loaded);
-    // Never loop (looping replays the breath attack = fake retrigger), never
-    // pitch-correct; re-applied until the source finishes loading because
-    // replace() resets these on some platforms.
-    this.ensurePitchConfig(loaded);
+    // Never loop (looping replays the breath/pluck attack = fake retrigger),
+    // never pitch-correct; re-applied per take until each source finishes
+    // loading because replace() resets these on some platforms.
+    takes.forEach((take) => this.ensurePitchConfig(loaded, take));
     return loaded;
   }
 }
