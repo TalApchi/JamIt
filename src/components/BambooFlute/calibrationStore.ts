@@ -1,4 +1,4 @@
-import { CalibratedFluteHole, cloneDefaultFluteHoles } from "./holeLayout";
+import { BAMBOO_FLUTE_HOLES, CalibratedFluteHole, cloneDefaultFluteHoles } from "./holeLayout";
 import { createCalibrationStore } from "../shared/calibrationStore";
 
 export const CALIBRATION_STORAGE_KEY = "jamit:bamboo-flute:calibrated-holes:v2";
@@ -9,7 +9,7 @@ const generatedCalibration = require("./calibration.generated.json");
 const store = createCalibrationStore({
   storageKey: CALIBRATION_STORAGE_KEY,
   legacyStorageKey: LEGACY_STORAGE_KEY,
-  padCount: 7,
+  padCount: BAMBOO_FLUTE_HOLES.length,
   generatedCalibration,
   cloneDefaultPads: cloneDefaultFluteHoles
 });
