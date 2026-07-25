@@ -1,17 +1,7 @@
 import { FLUTE_SAMPLE_DEFS, resolveFluteSampleDef } from "./fluteSampleData";
+import { ResolvedSample } from "./sampleTypes";
 
 export { getPlaybackRate } from "./fluteSampleData";
-
-export type ResolvedFluteSample = {
-  targetMidi: number;
-  source: number;
-  sourceFilename: string;
-  sourceNoteWithOctave: string;
-  sourceMidi: number;
-  semitoneShift: number;
-  playbackRate: number;
-  volume: number;
-};
 
 // Metro needs static require() calls, so the asset table is spelled out here
 // and joined with the pure sample metadata by filename.
@@ -48,12 +38,15 @@ FLUTE_SAMPLE_DEFS.forEach((def) => {
   }
 });
 
-export function resolveFluteSample(targetMidi: number): ResolvedFluteSample {
+export function resolveFluteSample(targetMidi: number): ResolvedSample {
   const { def, semitoneShift, playbackRate } = resolveFluteSampleDef(targetMidi);
+  const source = SAMPLE_SOURCES[def.filename];
 
   return {
     targetMidi,
-    source: SAMPLE_SOURCES[def.filename],
+    sources: [source],
+    sourceFilenames: [def.filename],
+    source,
     sourceFilename: def.filename,
     sourceNoteWithOctave: def.noteWithOctave,
     sourceMidi: def.midi,
