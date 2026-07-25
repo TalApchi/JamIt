@@ -1,0 +1,29 @@
+import React from "react";
+import { ScaleInstrument } from "../shared/ScaleInstrument";
+import { resolveKalimbaSample } from "../../audio/kalimbaSamples";
+import { RootNote, ScaleMode } from "../../music/scaleEngine";
+import { KALIMBA_IMAGE_SIZE, cloneDefaultKalimbaHoles } from "./holeLayout";
+import * as kalimbaCalibrationStore from "./calibrationStore";
+
+type Props = {
+  rootNote: RootNote;
+  mode: ScaleMode;
+  initialCalibrationMode?: boolean;
+  onExitCalibration?: () => void;
+};
+
+const kalimbaImage = require("../../../assets/images/kalimba.png");
+
+export function KalimbaInstrument(props: Props) {
+  return (
+    <ScaleInstrument
+      {...props}
+      instrumentLabel="Kalimba"
+      imageSource={kalimbaImage}
+      imageSize={KALIMBA_IMAGE_SIZE}
+      defaultPads={cloneDefaultKalimbaHoles()}
+      resolveSample={resolveKalimbaSample}
+      calibrationStore={kalimbaCalibrationStore}
+    />
+  );
+}
