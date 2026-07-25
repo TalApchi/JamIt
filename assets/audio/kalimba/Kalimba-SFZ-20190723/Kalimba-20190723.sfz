@@ -1,0 +1,196 @@
+//+ Name: Kalimba
+//+ Date: 2019-07-23
+//+ URL: http://freepats.zenvoid.org/Ethnic/kalimba.html
+
+<global>
+ ampeg_release=1.2
+
+<group>
+ //+ RandomRegion: Yes
+ lokey=48 hikey=56
+ pitch_keycenter=53
+ seq_length=4
+<region>
+ seq_position=1
+ sample=samples/F3_01.wav
+<region>
+ seq_position=2
+ sample=samples/F3_03.wav
+<region>
+ seq_position=3
+ sample=samples/F3_04.wav
+<region>
+ seq_position=4
+ sample=samples/F3_05.wav
+
+<group>
+ //+ RandomRegion: Yes
+ lokey=57 hikey=61
+ pitch_keycenter=60
+ tune=25
+ seq_length=5
+<region>
+ seq_position=1
+ sample=samples/1_01.wav
+<region>
+ seq_position=2
+ sample=samples/1_02.wav
+<region>
+ seq_position=3
+ sample=samples/1_03.wav
+<region>
+ seq_position=4
+ sample=samples/1_04.wav
+<region>
+ seq_position=5
+ sample=samples/1_05.wav
+
+<group>
+ //+ RandomRegion: Yes
+ lokey=62 hikey=63
+ pitch_keycenter=63
+ tune=5
+ seq_length=5
+<region>
+ seq_position=1
+ sample=samples/2_01.wav
+<region>
+ seq_position=2
+ sample=samples/2_02.wav
+<region>
+ seq_position=3
+ sample=samples/2_03.wav
+<region>
+ seq_position=4
+ sample=samples/2_04.wav
+<region>
+ seq_position=5
+ sample=samples/2_05.wav
+
+<group>
+ //+ RandomRegion: Yes
+ lokey=64 hikey=65
+ pitch_keycenter=64
+ tune=-40
+ seq_length=7
+<region>
+ seq_position=1
+ sample=samples/3_01.wav
+<region>
+ seq_position=2
+ sample=samples/3_02.wav
+<region>
+ seq_position=3
+ sample=samples/3_03.wav
+<region>
+ seq_position=4
+ sample=samples/3_04.wav
+<region>
+ seq_position=5
+ sample=samples/3_05.wav
+<region>
+ seq_position=6
+ sample=samples/3_06.wav
+<region>
+ seq_position=7
+ sample=samples/3_07.wav
+
+<group>
+ //+ RandomRegion: Yes
+ lokey=66 hikey=67
+ pitch_keycenter=67
+ tune=7
+ seq_length=7
+<region>
+ seq_position=1
+ sample=samples/4_01.wav
+<region>
+ seq_position=2
+ sample=samples/4_02.wav
+<region>
+ seq_position=3
+ sample=samples/4_03.wav
+<region>
+ seq_position=4
+ sample=samples/4_04.wav
+<region>
+ seq_position=5
+ sample=samples/4_05.wav
+<region>
+ seq_position=6
+ sample=samples/4_06.wav
+<region>
+ seq_position=7
+ sample=samples/4_07.wav
+
+<group>
+ //+ RandomRegion: Yes
+ lokey=68 hikey=70
+ pitch_keycenter=68
+ tune=17
+ seq_length=7
+<region>
+ seq_position=1
+ sample=samples/5_01.wav
+<region>
+ seq_position=2
+ sample=samples/5_02.wav
+<region>
+ seq_position=3
+ sample=samples/5_03.wav
+<region>
+ seq_position=4
+ sample=samples/5_04.wav
+<region>
+ seq_position=5
+ sample=samples/5_05.wav
+<region>
+ seq_position=6
+ sample=samples/5_06.wav
+<region>
+ seq_position=7
+ sample=samples/5_07.wav
+
+<group>
+ //+ RandomRegion: Yes
+ lokey=71 hikey=72
+ pitch_keycenter=72
+ tune=22
+ seq_length=5
+<region>
+ seq_position=1
+ sample=samples/6_01.wav
+<region>
+ seq_position=2
+ sample=samples/6_02.wav
+<region>
+ seq_position=3
+ sample=samples/6_03.wav
+<region>
+ seq_position=4
+ sample=samples/6_04.wav
+<region>
+ seq_position=5
+ sample=samples/6_05.wav
+
+<group>
+ //+ RandomRegion: Yes
+ lokey=73 hikey=84
+ pitch_keycenter=73
+ tune=-15
+ seq_length=5
+<region>
+ seq_position=1
+ sample=samples/7_01.wav
+<region>
+ seq_position=2
+ sample=samples/7_02.wav
+<region>
+ seq_position=3
+ sample=samples/7_03.wav
+<region>
+ seq_position=4
+ sample=samples/7_04.wav
+<region>
+ seq_position=5
+ sample=samples/7_05.wav

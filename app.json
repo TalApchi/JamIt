@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "JamIt",
+    "slug": "jamit",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "assetBundlePatterns": [
+      "assets/**/*"
+    ],
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0a0a08"
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+ [BambooFlute mapping] F Major
+hole=1 target=F4 source=FluteClean2_F#2.wav shift=-1 playbackRate=0.944 key=F Major|hole-1|F4
+hole=2 target=G4 source=FluteClean2_F#2.wav shift=1 playbackRate=1.059 key=F Major|hole-2|G4
+hole=3 target=A4 source=FluteClean2_A2.wav shift=0 playbackRate=1.000 key=F Major|hole-3|A4
+hole=4 target=A#4 source=FluteClean2_A2.wav shift=1 playbackRate=1.059 key=F Major|hole-4|A#4
+hole=5 target=C5 source=FluteClean2_C3.wav shift=0 playbackRate=1.000 key=F Major|hole-5|C5
+hole=6 target=D5 source=FluteClean2_D#3.wav shift=-1 playbackRate=0.944 key=F Major|hole-6|D5
+hole=7 target=E5 source=FluteClean2_D#3.wav shift=1 playbackRate=1.059 key=F Major|hole-7|E5
+ LOG  [BambooFlute press] hole=1 degree=1 scale=F Major target=F4 targetMidi=65 source=FluteClean2_F#2.wav sourceMidi=66 shift=-1 playbackRate=0.944 key=F Major|hole-1|F4 pointer=0
+ LOG  [AudioEngine verify] hole=1 target=F4 source=FluteClean2_F#2.wav intendedRate=0.9439 appliedRate=0.9439 pitchCorrection=false loaded=true OK
+ LOG  [BambooFlute press] hole=2 degree=2 scale=F Major target=G4 targetMidi=67 source=FluteClean2_F#2.wav sourceMidi=66 shift=1 playbackRate=1.059 key=F Major|hole-2|G4 pointer=0
+ LOG  [AudioEngine verify] hole=2 target=G4 source=FluteClean2_F#2.wav intendedRate=1.0595 appliedRate=1.0595 pitchCorrection=false loaded=true OK
+ LOG  [BambooFlute press] hole=3 degree=3 scale=F Major target=A4 targetMidi=69 source=FluteClean2_A2.wav sourceMidi=69 shift=0 playbackRate=1.000 key=F Major|hole-3|A4 pointer=0
+ LOG  [AudioEngine verify] hole=3 target=A4 source=FluteClean2_A2.wav intendedRate=1.0000 appliedRate=1.0000 pitchCorrection=false loaded=true OK
+ LOG  [BambooFlute press] hole=4 degree=4 scale=F Major target=A#4 targetMidi=70 source=FluteClean2_A2.wav sourceMidi=69 shift=1 playbackRate=1.059 key=F Major|hole-4|A#4 pointer=0
+ LOG  [AudioEngine verify] hole=4 target=A#4 source=FluteClean2_A2.wav intendedRate=1.0595 appliedRate=1.0595 pitchCorrection=false loaded=true OK
+ LOG  [BambooFlute press] hole=5 degree=5 scale=F Major target=C5 targetMidi=72 source=FluteClean2_C3.wav sourceMidi=72 shift=0 playbackRate=1.000 key=F Major|hole-5|C5 pointer=0
+ LOG  [AudioEngine verify] hole=5 target=C5 source=FluteClean2_C3.wav intendedRate=1.0000 appliedRate=1.0000 pitchCorrection=false loaded=true OK
+ LOG  [BambooFlute press] hole=6 degree=6 scale=F Major target=D5 targetMidi=74 source=FluteClean2_D#3.wav sourceMidi=75 shift=-1 playbackRate=0.944 key=F Major|hole-6|D5 pointer=0
+ LOG  [AudioEngine verify] hole=6 target=D5 source=FluteClean2_D#3.wav intendedRate=0.9439 appliedRate=0.9439 pitchCorrection=false loaded=true OK
+ LOG  [BambooFlute press] hole=7 degree=7 scale=F Major target=E5 targetMidi=76 source=FluteClean2_D#3.wav sourceMidi=75 shift=1 playbackRate=1.059 key=F Major|hole-7|E5 pointer=0
+ LOG  [AudioEngine verify] hole=7 target=E5 source=FluteClean2_D#3.wav intendedRate=1.0595 appliedRate=1.0595 pitchCorrection=false loaded=true OK
+ LOG  [BambooFlute release] hole=7 degree=7 scale=F Major target=E5 targetMidi=76 source=FluteClean2_D#3.wav sourceMidi=75 shift=1 playbackRate=1.059 key=F Major|hole-7|E5 pointer=0
