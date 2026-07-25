@@ -59,46 +59,56 @@ function parseWav(buffer) {
 
 function detectPitch(samples, sampleRate) {
   const win = Math.min(8192, Math.floor(samples.length / 2));
-  let bestStart = 0;
-  let bestEnergy = 0;
   const hop = Math.max(1, Math.floor(samples.length / 40));
-  for (let start = 0; start + win <= samples.length; start += hop) {
-    let sum = 0;
-    for (let i = start; i < start + win; i += 8) sum += samples[i] * samples[i];
-    if (sum > bestEnergy) {
-      bestEnergy = sum;
-      bestStart = start;
-    }
-  }
-  const seg = samples.subarray(bestStart, bestStart + win);
 
   const minLag = Math.floor(sampleRate / 2500);
   const maxLag = Math.min(Math.floor(sampleRate / 50), win - 1);
+
+  // Search EVERY candidate window (not just the highest-energy one) and keep
+  // whichever window's NSDF peak has the highest confidence. On a percussive
+  // pluck (e.g. Kalimba), the loudest window is usually the broadband attack
+  // transient rather than the pitched sustain, so picking by raw energy
+  // first can lock onto a non-periodic segment. Picking by NSDF peak
+  // confidence directly favors genuinely periodic windows regardless of
+  // their energy, which also works for sustained tones (e.g. Flute) since a
+  // clean sustained tone is strongly periodic almost everywhere.
+  let bestPeak = -Infinity;
+  let bestFrequency = null;
   const nsdf = new Float32Array(maxLag + 1);
-  for (let lag = minLag; lag <= maxLag; lag++) {
-    let acf = 0;
-    let norm = 0;
-    for (let i = 0; i + lag < win; i++) {
-      acf += seg[i] * seg[i + lag];
-      norm += seg[i] * seg[i] + seg[i + lag] * seg[i + lag];
+
+  for (let start = 0; start + win <= samples.length; start += hop) {
+    const seg = samples.subarray(start, start + win);
+
+    for (let lag = minLag; lag <= maxLag; lag++) {
+      let acf = 0;
+      let norm = 0;
+      for (let i = 0; i + lag < win; i++) {
+        acf += seg[i] * seg[i + lag];
+        norm += seg[i] * seg[i] + seg[i + lag] * seg[i + lag];
+      }
+      nsdf[lag] = norm > 0 ? (2 * acf) / norm : 0;
     }
-    nsdf[lag] = norm > 0 ? (2 * acf) / norm : 0;
+
+    let maxVal = 0;
+    for (let lag = minLag; lag <= maxLag; lag++) maxVal = Math.max(maxVal, nsdf[lag]);
+    const threshold = 0.9 * maxVal;
+    for (let lag = minLag + 1; lag < maxLag; lag++) {
+      if (nsdf[lag] > nsdf[lag - 1] && nsdf[lag] >= nsdf[lag + 1] && nsdf[lag] >= threshold) {
+        if (nsdf[lag] > bestPeak) {
+          const y1 = nsdf[lag - 1];
+          const y2 = nsdf[lag];
+          const y3 = nsdf[lag + 1];
+          const denom = y1 - 2 * y2 + y3;
+          const shift = denom !== 0 ? (0.5 * (y1 - y3)) / denom : 0;
+          bestPeak = nsdf[lag];
+          bestFrequency = sampleRate / (lag + shift);
+        }
+        break;
+      }
+    }
   }
 
-  let maxVal = 0;
-  for (let lag = minLag; lag <= maxLag; lag++) maxVal = Math.max(maxVal, nsdf[lag]);
-  const threshold = 0.9 * maxVal;
-  for (let lag = minLag + 1; lag < maxLag; lag++) {
-    if (nsdf[lag] > nsdf[lag - 1] && nsdf[lag] >= nsdf[lag + 1] && nsdf[lag] >= threshold) {
-      const y1 = nsdf[lag - 1];
-      const y2 = nsdf[lag];
-      const y3 = nsdf[lag + 1];
-      const denom = y1 - 2 * y2 + y3;
-      const shift = denom !== 0 ? (0.5 * (y1 - y3)) / denom : 0;
-      return sampleRate / (lag + shift);
-    }
-  }
-  return null;
+  return bestFrequency;
 }
 
 module.exports = { parseWav, detectPitch };
