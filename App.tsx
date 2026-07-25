@@ -2,25 +2,57 @@ import React, { useMemo, useState } from "react";
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { BambooFluteScreen } from "./src/screens/BambooFluteScreen";
+import { KalimbaScreen } from "./src/screens/KalimbaScreen";
+import { InstrumentSelectionScreen, Instrument } from "./src/screens/InstrumentSelectionScreen";
 import { ScaleSelectionScreen } from "./src/screens/ScaleSelectionScreen";
 import { RootNote, ScaleMode, getScaleName } from "./src/music/scaleEngine";
 
+type Phase = "instrument" | "setup" | "playing";
+
+const INSTRUMENT_LABEL: Record<Instrument, string> = {
+  flute: "flute",
+  kalimba: "kalimba"
+};
+
 export default function App() {
-  const [hasStarted, setHasStarted] = useState(false);
+  const [phase, setPhase] = useState<Phase>("instrument");
   const [startsInCalibration, setStartsInCalibration] = useState(false);
+  const [instrument, setInstrument] = useState<Instrument>("flute");
   const [rootNote, setRootNote] = useState<RootNote>("C");
   const [mode, setMode] = useState<ScaleMode>("major");
 
   const scaleName = useMemo(() => getScaleName(rootNote, mode), [rootNote, mode]);
 
-  if (!hasStarted) {
+  if (phase === "instrument") {
     return (
       <View style={styles.app}>
         <StatusBar hidden />
         <SafeAreaView style={styles.safe}>
           <View style={styles.welcome}>
             <Text style={styles.eyebrow}>JamIt</Text>
-            <Text style={styles.title}>Choose a scale, then play the flute.</Text>
+            <Text style={styles.title}>Choose an instrument.</Text>
+            <InstrumentSelectionScreen instrument={instrument} onInstrumentChange={setInstrument} />
+            <TouchableOpacity
+              style={styles.startButton}
+              activeOpacity={0.85}
+              onPress={() => setPhase("setup")}
+            >
+              <Text style={styles.startText}>Next</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </View>
+    );
+  }
+
+  if (phase === "setup") {
+    return (
+      <View style={styles.app}>
+        <StatusBar hidden />
+        <SafeAreaView style={styles.safe}>
+          <View style={styles.welcome}>
+            <Text style={styles.eyebrow}>JamIt</Text>
+            <Text style={styles.title}>Choose a scale, then play the {INSTRUMENT_LABEL[instrument]}.</Text>
             <ScaleSelectionScreen
               rootNote={rootNote}
               mode={mode}
@@ -32,7 +64,7 @@ export default function App() {
               activeOpacity={0.85}
               onPress={() => {
                 setStartsInCalibration(false);
-                setHasStarted(true);
+                setPhase("playing");
               }}
             >
               <Text style={styles.startText}>Start {scaleName}</Text>
@@ -42,10 +74,17 @@ export default function App() {
               activeOpacity={0.85}
               onPress={() => {
                 setStartsInCalibration(true);
-                setHasStarted(true);
+                setPhase("playing");
               }}
             >
               <Text style={styles.calibrateText}>Calibrate touch zones</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.changeInstrumentButton}
+              activeOpacity={0.85}
+              onPress={() => setPhase("instrument")}
+            >
+              <Text style={styles.changeInstrumentText}>Change instrument</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -56,13 +95,23 @@ export default function App() {
   return (
     <>
       <StatusBar hidden />
-      <BambooFluteScreen
-        rootNote={rootNote}
-        mode={mode}
-        initialCalibrationMode={startsInCalibration}
-        onExit={() => setHasStarted(false)}
-        onExitCalibration={() => setStartsInCalibration(false)}
-      />
+      {instrument === "kalimba" ? (
+        <KalimbaScreen
+          rootNote={rootNote}
+          mode={mode}
+          initialCalibrationMode={startsInCalibration}
+          onExit={() => setPhase("setup")}
+          onExitCalibration={() => setStartsInCalibration(false)}
+        />
+      ) : (
+        <BambooFluteScreen
+          rootNote={rootNote}
+          mode={mode}
+          initialCalibrationMode={startsInCalibration}
+          onExit={() => setPhase("setup")}
+          onExitCalibration={() => setStartsInCalibration(false)}
+        />
+      )}
     </>
   );
 }
@@ -122,5 +171,17 @@ const styles = StyleSheet.create({
     color: "#fff3dc",
     fontSize: 15,
     fontWeight: "800"
+  },
+  changeInstrumentButton: {
+    alignItems: "center",
+    marginTop: 16,
+    minHeight: 32,
+    justifyContent: "center"
+  },
+  changeInstrumentText: {
+    color: "rgba(255, 243, 220, 0.62)",
+    fontSize: 13,
+    fontWeight: "700",
+    textDecorationLine: "underline"
   }
 });
