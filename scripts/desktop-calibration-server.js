@@ -34,10 +34,25 @@ const INSTRUMENTS = {
       { degree: 6, sourceX: 1240, sourceY: 454, visibleRadius: 50, hitRadius: 70, isRoot: false },
       { degree: 7, sourceX: 1393, sourceY: 402, visibleRadius: 50, hitRadius: 70, isRoot: false }
     ]
+  },
+  melodica: {
+    label: "Melodica",
+    imagePath: path.join(root, "assets", "images", "melodica.png"),
+    calibrationPath: path.join(root, "src", "components", "Melodica", "calibration.generated.json"),
+    imageSize: { width: 1536, height: 1024 },
+    defaults: [
+      { degree: 1, sourceX: 351, sourceY: 563, visibleRadius: 50, hitRadius: 70, isRoot: true },
+      { degree: 2, sourceX: 492, sourceY: 563, visibleRadius: 50, hitRadius: 70, isRoot: false },
+      { degree: 3, sourceX: 639, sourceY: 563, visibleRadius: 50, hitRadius: 70, isRoot: false },
+      { degree: 4, sourceX: 717, sourceY: 563, visibleRadius: 50, hitRadius: 70, isRoot: false },
+      { degree: 5, sourceX: 867, sourceY: 563, visibleRadius: 50, hitRadius: 70, isRoot: false },
+      { degree: 6, sourceX: 1015, sourceY: 563, visibleRadius: 50, hitRadius: 70, isRoot: false },
+      { degree: 7, sourceX: 1170, sourceY: 563, visibleRadius: 50, hitRadius: 70, isRoot: false }
+    ]
   }
 };
 
-const instrumentId = process.env.INSTRUMENT === "kalimba" ? "kalimba" : "flute";
+const instrumentId = ["kalimba", "melodica"].includes(process.env.INSTRUMENT) ? process.env.INSTRUMENT : "flute";
 const instrumentConfig = INSTRUMENTS[instrumentId];
 const calibrationPath = instrumentConfig.calibrationPath;
 const imagePath = instrumentConfig.imagePath;

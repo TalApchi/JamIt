@@ -5,6 +5,7 @@ import * as ScreenOrientation from "expo-screen-orientation";
 import { AudioDebugScreen } from "./src/screens/AudioDebugScreen";
 import { BambooFluteScreen } from "./src/screens/BambooFluteScreen";
 import { KalimbaScreen } from "./src/screens/KalimbaScreen";
+import { MelodicaScreen } from "./src/screens/MelodicaScreen";
 import { InstrumentSelectionScreen, Instrument } from "./src/screens/InstrumentSelectionScreen";
 import { ScaleSelectionScreen } from "./src/screens/ScaleSelectionScreen";
 import { RootNote, ScaleMode, getScaleName } from "./src/music/scaleEngine";
@@ -13,7 +14,8 @@ type Phase = "instrument" | "setup" | "playing" | "audio-debug";
 
 const INSTRUMENT_LABEL: Record<Instrument, string> = {
   flute: "flute",
-  kalimba: "kalimba"
+  kalimba: "kalimba",
+  melodica: "melodica"
 };
 
 export default function App() {
@@ -25,10 +27,10 @@ export default function App() {
 
   const scaleName = useMemo(() => getScaleName(rootNote, mode), [rootNote, mode]);
 
-  // Only the Kalimba's own play screen wants landscape (it locks to it
-  // itself); every other screen in the app — including this one — is
-  // portrait-only. app.json can no longer hard-lock the whole app to
-  // portrait (the Kalimba needs to unlock into landscape), so the root
+  // Only the Kalimba's and Melodica's own play screens want landscape (each
+  // locks to it itself); every other screen in the app — including this one
+  // — is portrait-only. app.json can no longer hard-lock the whole app to
+  // portrait (those screens need to unlock into landscape), so the root
   // locks portrait explicitly here instead, once, for the app's lifetime.
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch((error) => {
@@ -127,6 +129,14 @@ export default function App() {
       <StatusBar hidden />
       {instrument === "kalimba" ? (
         <KalimbaScreen
+          rootNote={rootNote}
+          mode={mode}
+          initialCalibrationMode={startsInCalibration}
+          onExit={() => setPhase("setup")}
+          onExitCalibration={() => setStartsInCalibration(false)}
+        />
+      ) : instrument === "melodica" ? (
+        <MelodicaScreen
           rootNote={rootNote}
           mode={mode}
           initialCalibrationMode={startsInCalibration}

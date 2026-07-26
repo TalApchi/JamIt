@@ -9,5 +9,10 @@
     "skipLibCheck": true,
     "types": []
   },
-  "include": ["src/music/**/*.ts", "src/audio/fluteSampleData.ts", "src/audio/kalimbaSampleData.ts"]
+  "include": [
+    "src/music/**/*.ts",
+    "src/audio/fluteSampleData.ts",
+    "src/audio/kalimbaSampleData.ts",
+    "src/audio/melodicaSampleData.ts"
+  ]
 }

@@ -62,7 +62,12 @@ function detectPitch(samples, sampleRate) {
   const hop = Math.max(1, Math.floor(samples.length / 40));
 
   const minLag = Math.floor(sampleRate / 2500);
-  const maxLag = Math.min(Math.floor(sampleRate / 50), win - 1);
+  // 20 Hz floor (not 50): the Melodica catalog's lowest note, F#1 (~46 Hz),
+  // needs a longer max lag than a 50 Hz floor allows. Lowering it doesn't
+  // change detection for any higher-pitched Flute/Kalimba/Melodica sample --
+  // their true fundamental peak sits at a much shorter lag and is still
+  // found the same way; this only makes longer lags reachable too.
+  const maxLag = Math.min(Math.floor(sampleRate / 20), win - 1);
 
   // Search EVERY candidate window (not just the highest-energy one) and keep
   // whichever window's NSDF peak has the highest confidence. On a percussive
