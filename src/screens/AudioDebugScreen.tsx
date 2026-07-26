@@ -18,9 +18,12 @@ type Props = {
 };
 
 // Fixed octave (C4..B4, MIDI 60..71) -- deliberately NOT derived from any
-// scale/degree logic. This spans the Kalimba's exact-match tines (C4, D#4,
-// E4, G4, G#4) and several notes it has no exact tine for (D4, F#4, A4,
-// A#4, B4), so the resolver's nearest-tine fallback gets exercised too.
+// scale/degree logic. Every one of these 12 notes now resolves to its own
+// dedicated, pre-rendered WAV at playbackRate 1.0 (see
+// src/audio/kalimbaSampleData.ts): 5 are the Kalimba's real recorded tines
+// (C4, D#4, E4, G4, G#4), the other 7 (C#4, D4, F4, F#4, A4, A#4, B4) are
+// offline-pitch-shifted-and-verified renders, since runtime playbackRate
+// shifting was confirmed unreliable on-device.
 const BASE_MIDI = 60;
 
 const DEBUG_NOTES: PlayableNote[] = CHROMATIC_NOTES.map((label, index) => ({
