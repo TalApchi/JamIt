@@ -2,13 +2,14 @@ import React, { useEffect, useMemo, useState } from "react";
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import * as ScreenOrientation from "expo-screen-orientation";
+import { AudioDebugScreen } from "./src/screens/AudioDebugScreen";
 import { BambooFluteScreen } from "./src/screens/BambooFluteScreen";
 import { KalimbaScreen } from "./src/screens/KalimbaScreen";
 import { InstrumentSelectionScreen, Instrument } from "./src/screens/InstrumentSelectionScreen";
 import { ScaleSelectionScreen } from "./src/screens/ScaleSelectionScreen";
 import { RootNote, ScaleMode, getScaleName } from "./src/music/scaleEngine";
 
-type Phase = "instrument" | "setup" | "playing";
+type Phase = "instrument" | "setup" | "playing" | "audio-debug";
 
 const INSTRUMENT_LABEL: Record<Instrument, string> = {
   flute: "flute",
@@ -35,6 +36,15 @@ export default function App() {
     });
   }, []);
 
+  if (phase === "audio-debug") {
+    return (
+      <>
+        <StatusBar hidden />
+        <AudioDebugScreen onExit={() => setPhase("instrument")} />
+      </>
+    );
+  }
+
   if (phase === "instrument") {
     return (
       <View style={styles.app}>
@@ -50,6 +60,14 @@ export default function App() {
               onPress={() => setPhase("setup")}
             >
               <Text style={styles.startText}>Next</Text>
+            </TouchableOpacity>
+            {/* Temporary isolation tool -- see src/screens/AudioDebugScreen.tsx */}
+            <TouchableOpacity
+              style={styles.changeInstrumentButton}
+              activeOpacity={0.85}
+              onPress={() => setPhase("audio-debug")}
+            >
+              <Text style={styles.changeInstrumentText}>Audio Debug (temporary)</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
