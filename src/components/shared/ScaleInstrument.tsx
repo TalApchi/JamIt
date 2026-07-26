@@ -46,6 +46,12 @@ export type ScaleInstrumentProps = {
   // Kalimba) where every tap, however brief, should sound immediately on
   // touch-down.
   noteStartHoldMs?: number;
+  // Whether lifting a finger stops its note. Defaults to true, matching the
+  // Flute's breath-instrument feel (hold-to-sustain, release-to-stop). Pass
+  // false for a plucked instrument (like the Kalimba) where releasing
+  // should NOT silence the note -- it keeps ringing and finishes on its own,
+  // like a real tine you're no longer touching.
+  stopOnRelease?: boolean;
 };
 
 type ActiveTouch = {
@@ -76,7 +82,8 @@ export function ScaleInstrument({
   defaultPads,
   resolveSample,
   calibrationStore,
-  noteStartHoldMs = NOTE_START_HOLD_MS
+  noteStartHoldMs = NOTE_START_HOLD_MS,
+  stopOnRelease = true
 }: ScaleInstrumentProps) {
   const audioEngine = useRef(new AudioEngine(resolveSample)).current;
   const activeTouches = useRef(new Map<string, ActiveTouch>());
@@ -295,9 +302,15 @@ export function ScaleInstrument({
       if (!active.isSounding || !active.degree || !active.note) return;
 
       logTouchEvent("release", touchId, active.degree, active.note);
-      audioEngine.stop(touchId).catch(() => undefined);
+      if (stopOnRelease) {
+        audioEngine.stop(touchId).catch(() => undefined);
+      } else {
+        // Detach bookkeeping only; the note keeps sounding and finishes on
+        // its own (see AudioEngine.release's own doc comment).
+        audioEngine.release(touchId);
+      }
     },
-    [audioEngine, logTouchEvent]
+    [audioEngine, logTouchEvent, stopOnRelease]
   );
 
   const handleTouchStart = useCallback(

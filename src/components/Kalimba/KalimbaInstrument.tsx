@@ -27,6 +27,9 @@ export function KalimbaInstrument(props: Props) {
       // A real kalimba tine sounds the instant it's plucked — no hold delay,
       // unlike the Flute's breath-instrument feel.
       noteStartHoldMs={0}
+      // Lifting your finger doesn't silence a plucked tine -- it keeps
+      // ringing and finishes on its own.
+      stopOnRelease={false}
     />
   );
 }

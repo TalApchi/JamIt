@@ -177,6 +177,26 @@ export class AudioEngine {
     await this.fadeOutAndPause(loaded);
   }
 
+  // Like stop(), but never fades/pauses the player: the note keeps sounding
+  // and is left to finish on its own (its own natural decay/end-of-file),
+  // exactly like a real plucked instrument where lifting your finger does
+  // not silence a tine that's already ringing. Still detaches this touch
+  // from AudioEngine's own bookkeeping — `activeTouches`/`activeTouchCount`
+  // — so a later, unrelated touch reusing the same id (native touch
+  // identifiers can be recycled once a touch sequence ends) is treated as a
+  // fresh press, and re-pressing the SAME pad before the ring finishes still
+  // correctly retriggers it (activeTouchCount 0 -> 1 again).
+  release(id: ActiveSoundId) {
+    const key = this.activeTouches.get(id);
+    if (!key) return;
+    this.activeTouches.delete(id);
+
+    const loaded = this.notes.get(key);
+    if (!loaded) return;
+
+    loaded.activeTouchCount = Math.max(0, loaded.activeTouchCount - 1);
+  }
+
   async stopAll() {
     const activeIds = [...this.activeTouches.keys()];
     await Promise.all(activeIds.map((id) => this.stop(id)));
