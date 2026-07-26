@@ -28,6 +28,9 @@ export function MelodicaInstrument(props: Props) {
       // Flute's hold/sustain-while-held breath-instrument feel.
       noteStartHoldMs={0}
       stopOnRelease={false}
+      // Rectangular touch zones fit the white keys' real footprint far
+      // better than the Flute/Kalimba's circular ones.
+      padShape="rectangle"
     />
   );
 }

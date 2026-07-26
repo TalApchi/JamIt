@@ -3,14 +3,22 @@
 // full-screen background image, and conversions between image-source pixel
 // coordinates and on-screen container coordinates.
 
+// hitRadius/visibleRadius double as the rectangle's half-width when
+// hitHeight/visibleHeight are present -- see ScaleInstrumentProps.padShape.
+// A pad with no height fields is a plain circle (hitRadius as its radius),
+// which is every existing Flute/Kalimba pad; untouched, no migration needed.
 export type CalibratedPad = {
   degree: number;
   sourceX: number;
   sourceY: number;
   visibleRadius: number;
   hitRadius: number;
+  visibleHeight?: number;
+  hitHeight?: number;
   isRoot: boolean;
 };
+
+export type PadShape = "circle" | "rectangle";
 
 export type ImageSize = {
   width: number;

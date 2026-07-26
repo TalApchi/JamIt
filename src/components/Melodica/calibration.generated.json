@@ -1,12 +1,12 @@
 {
   "updatedAt": 0,
   "holes": [
-    { "degree": 1, "sourceX": 351, "sourceY": 563, "visibleRadius": 50, "hitRadius": 70, "isRoot": true },
-    { "degree": 2, "sourceX": 492, "sourceY": 563, "visibleRadius": 50, "hitRadius": 70, "isRoot": false },
-    { "degree": 3, "sourceX": 639, "sourceY": 563, "visibleRadius": 50, "hitRadius": 70, "isRoot": false },
-    { "degree": 4, "sourceX": 717, "sourceY": 563, "visibleRadius": 50, "hitRadius": 70, "isRoot": false },
-    { "degree": 5, "sourceX": 867, "sourceY": 563, "visibleRadius": 50, "hitRadius": 70, "isRoot": false },
-    { "degree": 6, "sourceX": 1015, "sourceY": 563, "visibleRadius": 50, "hitRadius": 70, "isRoot": false },
-    { "degree": 7, "sourceX": 1170, "sourceY": 563, "visibleRadius": 50, "hitRadius": 70, "isRoot": false }
+    { "degree": 1, "sourceX": 351, "sourceY": 563, "visibleRadius": 26, "hitRadius": 32, "visibleHeight": 123, "hitHeight": 150, "isRoot": true },
+    { "degree": 2, "sourceX": 492, "sourceY": 563, "visibleRadius": 26, "hitRadius": 32, "visibleHeight": 123, "hitHeight": 150, "isRoot": false },
+    { "degree": 3, "sourceX": 639, "sourceY": 563, "visibleRadius": 26, "hitRadius": 32, "visibleHeight": 123, "hitHeight": 150, "isRoot": false },
+    { "degree": 4, "sourceX": 717, "sourceY": 563, "visibleRadius": 26, "hitRadius": 32, "visibleHeight": 123, "hitHeight": 150, "isRoot": false },
+    { "degree": 5, "sourceX": 867, "sourceY": 563, "visibleRadius": 26, "hitRadius": 32, "visibleHeight": 123, "hitHeight": 150, "isRoot": false },
+    { "degree": 6, "sourceX": 1015, "sourceY": 563, "visibleRadius": 26, "hitRadius": 32, "visibleHeight": 123, "hitHeight": 150, "isRoot": false },
+    { "degree": 7, "sourceX": 1170, "sourceY": 563, "visibleRadius": 26, "hitRadius": 32, "visibleHeight": 123, "hitHeight": 150, "isRoot": false }
   ]
 }

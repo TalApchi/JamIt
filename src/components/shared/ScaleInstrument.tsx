@@ -22,6 +22,7 @@ import { generatePitchedScale } from "../../music/noteEngine";
 import {
   CalibratedPad,
   ImageSize,
+  PadShape,
   RenderedImageFrame,
   containerPointToSource,
   getCoverFrame,
@@ -52,6 +53,14 @@ export type ScaleInstrumentProps = {
   // should NOT silence the note -- it keeps ringing and finishes on its own,
   // like a real tine you're no longer touching.
   stopOnRelease?: boolean;
+  // Touch-zone shape in calibration mode (and for hit-testing during normal
+  // play). Defaults to "circle", matching the Flute and Kalimba's round
+  // holes/tines. Pass "rectangle" for an instrument whose touch targets are
+  // naturally rectangular (like the Melodica/Piano's white keys) -- pads
+  // then use hitRadius/visibleRadius as a half-width paired with
+  // hitHeight/visibleHeight as a half-height (see CalibratedPad), resized
+  // independently per axis instead of radially.
+  padShape?: PadShape;
 };
 
 type ActiveTouch = {
@@ -83,8 +92,10 @@ export function ScaleInstrument({
   resolveSample,
   calibrationStore,
   noteStartHoldMs = NOTE_START_HOLD_MS,
-  stopOnRelease = true
+  stopOnRelease = true,
+  padShape = "circle"
 }: ScaleInstrumentProps) {
+  const isRectangle = padShape === "rectangle";
   const audioEngine = useRef(new AudioEngine(resolveSample)).current;
   const activeTouches = useRef(new Map<string, ActiveTouch>());
   const calibrationGesture = useRef<{ degree: number; mode: CalibrationDragMode } | null>(null);
@@ -175,10 +186,21 @@ export function ScaleInstrument({
       const point = sourcePointToContainer(hole.sourceX, hole.sourceY, frame);
       const dx = x - point.x;
       const dy = y - point.y;
+
+      // Rectangles are calibrated directly to fit each key's real footprint
+      // (including deliberately-tight fits between adjacent narrow keys), so
+      // -- unlike circles -- their hit box is used exactly as sized, with no
+      // automatic overlap-shrinking.
+      if (isRectangle) {
+        const halfWidth = hole.hitRadius * frame.scale;
+        const halfHeight = (hole.hitHeight ?? hole.hitRadius) * frame.scale;
+        return Math.abs(dx) <= halfWidth && Math.abs(dy) <= halfHeight;
+      }
+
       const hitRadius = getEffectiveHitRadius(hole) * frame.scale;
       return dx * dx + dy * dy <= hitRadius * hitRadius;
     },
-    [frame, getEffectiveHitRadius]
+    [frame, getEffectiveHitRadius, isRectangle]
   );
 
   const findHoleDegreeAtPoint = useCallback(
@@ -448,6 +470,22 @@ export function ScaleInstrument({
 
             const dx = sourcePoint.sourceX - hole.sourceX;
             const dy = sourcePoint.sourceY - hole.sourceY;
+
+            // Rectangle: the handle drags from center to corner, so its
+            // horizontal/vertical offsets set width and height independently
+            // (a standard corner-resize handle), instead of one radius.
+            if (isRectangle) {
+              const nextHalfWidth = Math.max(20, Math.min(200, Math.abs(dx)));
+              const nextHalfHeight = Math.max(20, Math.min(300, Math.abs(dy)));
+              return {
+                ...hole,
+                hitRadius: nextHalfWidth,
+                hitHeight: nextHalfHeight,
+                visibleRadius: nextHalfWidth * 0.82,
+                visibleHeight: nextHalfHeight * 0.82
+              };
+            }
+
             const nextRadius = Math.max(36, Math.min(150, Math.sqrt(dx * dx + dy * dy)));
             return {
               ...hole,
@@ -463,7 +501,7 @@ export function ScaleInstrument({
           calibrationGesture.current = null;
         }
       }),
-    [frame, isCalibrationMode, updateHole]
+    [frame, isCalibrationMode, isRectangle, updateHole]
   );
 
   return (
@@ -479,7 +517,8 @@ export function ScaleInstrument({
         {frame
           ? holes.map((hole) => {
               const point = sourcePointToContainer(hole.sourceX, hole.sourceY, frame);
-              const hitRadius = hole.hitRadius * frame.scale;
+              const halfWidth = hole.hitRadius * frame.scale;
+              const halfHeight = (isRectangle ? hole.hitHeight ?? hole.hitRadius : hole.hitRadius) * frame.scale;
 
               return (
                 <View key={hole.degree} pointerEvents="box-none" style={StyleSheet.absoluteFill}>
@@ -491,13 +530,13 @@ export function ScaleInstrument({
                         calibrationGesture.current = { degree: hole.degree, mode: "move" };
                       }}
                       style={[
-                        styles.calibrationCircle,
+                        styles.calibrationZone,
                         {
-                          left: point.x - hitRadius,
-                          top: point.y - hitRadius,
-                          width: hitRadius * 2,
-                          height: hitRadius * 2,
-                          borderRadius: hitRadius
+                          left: point.x - halfWidth,
+                          top: point.y - halfHeight,
+                          width: halfWidth * 2,
+                          height: halfHeight * 2,
+                          borderRadius: isRectangle ? 8 : halfWidth
                         }
                       ]}
                     >
@@ -543,7 +582,7 @@ const styles = StyleSheet.create({
   image: {
     flex: 1
   },
-  calibrationCircle: {
+  calibrationZone: {
     alignItems: "center",
     backgroundColor: "rgba(44, 227, 185, 0.08)",
     borderColor: "rgba(95, 255, 212, 0.95)",

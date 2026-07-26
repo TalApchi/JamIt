@@ -3,6 +3,7 @@ import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-na
 import { StatusBar } from "expo-status-bar";
 import * as ScreenOrientation from "expo-screen-orientation";
 import { AudioDebugScreen } from "./src/screens/AudioDebugScreen";
+import { PianoAudioDebugScreen } from "./src/screens/PianoAudioDebugScreen";
 import { BambooFluteScreen } from "./src/screens/BambooFluteScreen";
 import { KalimbaScreen } from "./src/screens/KalimbaScreen";
 import { MelodicaScreen } from "./src/screens/MelodicaScreen";
@@ -10,7 +11,7 @@ import { InstrumentSelectionScreen, Instrument } from "./src/screens/InstrumentS
 import { ScaleSelectionScreen } from "./src/screens/ScaleSelectionScreen";
 import { RootNote, ScaleMode, getScaleName } from "./src/music/scaleEngine";
 
-type Phase = "instrument" | "setup" | "playing" | "audio-debug";
+type Phase = "instrument" | "setup" | "playing" | "audio-debug" | "piano-audio-debug";
 
 const INSTRUMENT_LABEL: Record<Instrument, string> = {
   flute: "flute",
@@ -47,6 +48,15 @@ export default function App() {
     );
   }
 
+  if (phase === "piano-audio-debug") {
+    return (
+      <>
+        <StatusBar hidden />
+        <PianoAudioDebugScreen onExit={() => setPhase("instrument")} />
+      </>
+    );
+  }
+
   if (phase === "instrument") {
     return (
       <View style={styles.app}>
@@ -70,6 +80,14 @@ export default function App() {
               onPress={() => setPhase("audio-debug")}
             >
               <Text style={styles.changeInstrumentText}>Audio Debug (temporary)</Text>
+            </TouchableOpacity>
+            {/* Temporary isolation tool -- see src/screens/PianoAudioDebugScreen.tsx */}
+            <TouchableOpacity
+              style={styles.changeInstrumentButton}
+              activeOpacity={0.85}
+              onPress={() => setPhase("piano-audio-debug")}
+            >
+              <Text style={styles.changeInstrumentText}>Piano Audio Debug (temporary)</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>

@@ -10,6 +10,7 @@ const INSTRUMENTS = {
     imagePath: path.join(root, "assets", "images", "bamboo-flute-final.png"),
     calibrationPath: path.join(root, "src", "components", "BambooFlute", "calibration.generated.json"),
     imageSize: { width: 853, height: 1844 },
+    shape: "circle",
     defaults: [
       { degree: 1, sourceX: 426, sourceY: 553, visibleRadius: 73, hitRadius: 96, isRoot: true },
       { degree: 2, sourceX: 426, sourceY: 720, visibleRadius: 51, hitRadius: 76, isRoot: false },
@@ -25,6 +26,7 @@ const INSTRUMENTS = {
     imagePath: path.join(root, "assets", "images", "kalimba.png"),
     calibrationPath: path.join(root, "src", "components", "Kalimba", "calibration.generated.json"),
     imageSize: { width: 1857, height: 847 },
+    shape: "circle",
     defaults: [
       { degree: 1, sourceX: 475, sourceY: 402, visibleRadius: 50, hitRadius: 70, isRoot: true },
       { degree: 2, sourceX: 628, sourceY: 454, visibleRadius: 50, hitRadius: 70, isRoot: false },
@@ -40,14 +42,15 @@ const INSTRUMENTS = {
     imagePath: path.join(root, "assets", "images", "melodica.png"),
     calibrationPath: path.join(root, "src", "components", "Melodica", "calibration.generated.json"),
     imageSize: { width: 1536, height: 1024 },
+    shape: "rectangle",
     defaults: [
-      { degree: 1, sourceX: 351, sourceY: 563, visibleRadius: 50, hitRadius: 70, isRoot: true },
-      { degree: 2, sourceX: 492, sourceY: 563, visibleRadius: 50, hitRadius: 70, isRoot: false },
-      { degree: 3, sourceX: 639, sourceY: 563, visibleRadius: 50, hitRadius: 70, isRoot: false },
-      { degree: 4, sourceX: 717, sourceY: 563, visibleRadius: 50, hitRadius: 70, isRoot: false },
-      { degree: 5, sourceX: 867, sourceY: 563, visibleRadius: 50, hitRadius: 70, isRoot: false },
-      { degree: 6, sourceX: 1015, sourceY: 563, visibleRadius: 50, hitRadius: 70, isRoot: false },
-      { degree: 7, sourceX: 1170, sourceY: 563, visibleRadius: 50, hitRadius: 70, isRoot: false }
+      { degree: 1, sourceX: 351, sourceY: 563, visibleRadius: 26, hitRadius: 32, visibleHeight: 123, hitHeight: 150, isRoot: true },
+      { degree: 2, sourceX: 492, sourceY: 563, visibleRadius: 26, hitRadius: 32, visibleHeight: 123, hitHeight: 150, isRoot: false },
+      { degree: 3, sourceX: 639, sourceY: 563, visibleRadius: 26, hitRadius: 32, visibleHeight: 123, hitHeight: 150, isRoot: false },
+      { degree: 4, sourceX: 717, sourceY: 563, visibleRadius: 26, hitRadius: 32, visibleHeight: 123, hitHeight: 150, isRoot: false },
+      { degree: 5, sourceX: 867, sourceY: 563, visibleRadius: 26, hitRadius: 32, visibleHeight: 123, hitHeight: 150, isRoot: false },
+      { degree: 6, sourceX: 1015, sourceY: 563, visibleRadius: 26, hitRadius: 32, visibleHeight: 123, hitHeight: 150, isRoot: false },
+      { degree: 7, sourceX: 1170, sourceY: 563, visibleRadius: 26, hitRadius: 32, visibleHeight: 123, hitHeight: 150, isRoot: false }
     ]
   }
 };
@@ -207,10 +210,10 @@ const page = `<!doctype html>
     </div>
     <aside>
       <h1>Desktop Calibration</h1>
-      <p>Drag a circle to move it. Drag its small bottom-right handle to resize. Save writes the shared calibration used by the mobile app.</p>
+      <p>Drag a zone to move it. Drag its small bottom-right handle to resize. Save writes the shared calibration used by the mobile app.</p>
       <div class="stats">
         <div class="stat"><span>Zone</span><strong id="zone">1</strong></div>
-        <div class="stat"><span>Radius</span><strong id="radius">0</strong></div>
+        <div class="stat"><span id="sizeLabel">Radius</span><strong id="radius">0</strong></div>
         <div class="stat"><span>X</span><strong id="xpos">0</strong></div>
         <div class="stat"><span>Y</span><strong id="ypos">0</strong></div>
       </div>
@@ -221,6 +224,7 @@ const page = `<!doctype html>
     <script>
       const IMAGE_SIZE = ${JSON.stringify(instrumentConfig.imageSize)};
       const defaults = ${JSON.stringify(instrumentConfig.defaults)};
+      const SHAPE = ${JSON.stringify(instrumentConfig.shape || "circle")};
       const stage = document.getElementById("stage");
       const statusEl = document.getElementById("status");
       let holes = defaults.map((hole) => ({ ...hole }));
@@ -260,14 +264,15 @@ const page = `<!doctype html>
         stage.querySelectorAll(".circle").forEach((node) => node.remove());
         holes.forEach((hole) => {
           const point = sourceToStage(hole.sourceX, hole.sourceY);
-          const radius = hole.hitRadius * point.scale;
+          const halfWidth = hole.hitRadius * point.scale;
+          const halfHeight = (SHAPE === "rectangle" ? hole.hitHeight ?? hole.hitRadius : hole.hitRadius) * point.scale;
           const circle = document.createElement("div");
           circle.className = "circle" + (hole.degree === selectedDegree ? " selected" : "");
-          circle.style.left = point.x - radius + "px";
-          circle.style.top = point.y - radius + "px";
-          circle.style.width = radius * 2 + "px";
-          circle.style.height = radius * 2 + "px";
-          circle.style.borderRadius = radius + "px";
+          circle.style.left = point.x - halfWidth + "px";
+          circle.style.top = point.y - halfHeight + "px";
+          circle.style.width = halfWidth * 2 + "px";
+          circle.style.height = halfHeight * 2 + "px";
+          circle.style.borderRadius = SHAPE === "rectangle" ? "8px" : halfWidth + "px";
           circle.textContent = String(hole.degree);
           circle.addEventListener("pointerdown", (event) => {
             selectedDegree = hole.degree;
@@ -294,7 +299,14 @@ const page = `<!doctype html>
         document.getElementById("zone").textContent = String(hole.degree);
         document.getElementById("xpos").textContent = String(Math.round(hole.sourceX));
         document.getElementById("ypos").textContent = String(Math.round(hole.sourceY));
-        document.getElementById("radius").textContent = String(Math.round(hole.hitRadius));
+        if (SHAPE === "rectangle") {
+          document.getElementById("sizeLabel").textContent = "W x H";
+          document.getElementById("radius").textContent =
+            Math.round(hole.hitRadius * 2) + " x " + Math.round((hole.hitHeight ?? hole.hitRadius) * 2);
+        } else {
+          document.getElementById("sizeLabel").textContent = "Radius";
+          document.getElementById("radius").textContent = String(Math.round(hole.hitRadius));
+        }
       }
       window.addEventListener("pointermove", (event) => {
         if (!drag) return;
@@ -306,6 +318,11 @@ const page = `<!doctype html>
           }
           const dx = point.sourceX - hole.sourceX;
           const dy = point.sourceY - hole.sourceY;
+          if (SHAPE === "rectangle") {
+            const hitRadius = Math.max(20, Math.min(200, Math.abs(dx)));
+            const hitHeight = Math.max(20, Math.min(300, Math.abs(dy)));
+            return { ...hole, hitRadius, hitHeight, visibleRadius: hitRadius * 0.82, visibleHeight: hitHeight * 0.82 };
+          }
           const hitRadius = Math.max(36, Math.min(150, Math.sqrt(dx * dx + dy * dy)));
           return { ...hole, hitRadius, visibleRadius: hitRadius * 0.72 };
         });
