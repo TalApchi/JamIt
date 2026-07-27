@@ -1,16 +1,27 @@
-// Pure data + resolution logic for the Melodica sample kit.
+// Pure data + resolution logic for the Melodica/Piano sample kit.
 // Kept free of require()/expo imports so node test scripts can exercise it.
 //
-// The kit is FreePats' "FM Piano 1" (public domain, DX7 "E. Piano 1"
-// emulation) at assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/. It records
-// exactly two pitch classes -- C and F# -- across octaves 1-7, at three
-// velocity layers each (v60/v80/v100). This is NOT a full chromatic kit: it
-// is the standard sparse-multisample SFZ technique (each recording's SFZ
-// region spans +-3 semitones). Every note therefore always plays the v100
-// (loudest) take of the nearest recorded C or F#, exactly like the Bamboo
-// Flute's resolveFluteSampleDef -- neither the Flute nor the Kalimba are
-// velocity-sensitive today, so there is no touch signal to pick a layer by.
-
+// The kit has an EXACT, dedicated, pre-rendered sample for every playable
+// note (MIDI 60..82 = C4..A#5 -- the same range the Flute/Kalimba kits
+// cover, since it's exactly the range every supported Major/Natural Minor
+// scale can ever target):
+//  - 4 notes (C4, F#4, C5, F#5) are the pack's own real recorded v100
+//    takes, used directly from `samples/`.
+//  - 19 notes have no matching recording and are pre-rendered offline into
+//    `generated/` by scripts/generate-melodica-shifted-samples.js, by
+//    resampling the nearest recorded C/F# take (Lanczos kernel, same
+//    technique as the Flute's/Kalimba's own generated/ files). This exists
+//    because runtime playbackRate-based pitch shifting was confirmed
+//    UNRELIABLE on-device via the Piano Audio Debug screen (multiple
+//    different logged playbackRate values within the same C/F# group
+//    produced identical audible pitch), exactly mirroring
+//    fluteSampleData.ts's/kalimbaSampleData.ts's own history and the same
+//    reason pre-rendering exists there. Every note therefore now plays at
+//    playbackRate 1.0; the nearest-sample + rate = 2^(shift/12) resolver
+//    only ever engages for targets outside 60..82, which the scale engine
+//    can never produce.
+// `gain` normalizes each file's sustained RMS; left at 1.0 for now (no RMS
+// analysis pass yet), same starting point as the Kalimba.
 export type MelodicaSampleDef = {
   filename: string;
   noteWithOctave: string;
@@ -19,18 +30,29 @@ export type MelodicaSampleDef = {
 };
 
 export const MELODICA_SAMPLE_DEFS: MelodicaSampleDef[] = [
-  { filename: "F#1v100.wav", noteWithOctave: "F#1", midi: 30, gain: 1.0 },
-  { filename: "C2v100.wav", noteWithOctave: "C2", midi: 36, gain: 1.0 },
-  { filename: "F#2v100.wav", noteWithOctave: "F#2", midi: 42, gain: 1.0 },
-  { filename: "C3v100.wav", noteWithOctave: "C3", midi: 48, gain: 1.0 },
-  { filename: "F#3v100.wav", noteWithOctave: "F#3", midi: 54, gain: 1.0 },
-  { filename: "C4v100.wav", noteWithOctave: "C4", midi: 60, gain: 1.0 },
-  { filename: "F#4v100.wav", noteWithOctave: "F#4", midi: 66, gain: 1.0 },
-  { filename: "C5v100.wav", noteWithOctave: "C5", midi: 72, gain: 1.0 },
-  { filename: "F#5v100.wav", noteWithOctave: "F#5", midi: 78, gain: 1.0 },
-  { filename: "C6v100.wav", noteWithOctave: "C6", midi: 84, gain: 1.0 },
-  { filename: "F#6v100.wav", noteWithOctave: "F#6", midi: 90, gain: 1.0 },
-  { filename: "C7v100.wav", noteWithOctave: "C7", midi: 96, gain: 1.0 }
+  { filename: "samples/C4v100.wav", noteWithOctave: "C4", midi: 60, gain: 1.0 },
+  { filename: "generated/Melodica_C#4.wav", noteWithOctave: "C#4", midi: 61, gain: 1.0 },
+  { filename: "generated/Melodica_D4.wav", noteWithOctave: "D4", midi: 62, gain: 1.0 },
+  { filename: "generated/Melodica_D#4.wav", noteWithOctave: "D#4", midi: 63, gain: 1.0 },
+  { filename: "generated/Melodica_E4.wav", noteWithOctave: "E4", midi: 64, gain: 1.0 },
+  { filename: "generated/Melodica_F4.wav", noteWithOctave: "F4", midi: 65, gain: 1.0 },
+  { filename: "samples/F#4v100.wav", noteWithOctave: "F#4", midi: 66, gain: 1.0 },
+  { filename: "generated/Melodica_G4.wav", noteWithOctave: "G4", midi: 67, gain: 1.0 },
+  { filename: "generated/Melodica_G#4.wav", noteWithOctave: "G#4", midi: 68, gain: 1.0 },
+  { filename: "generated/Melodica_A4.wav", noteWithOctave: "A4", midi: 69, gain: 1.0 },
+  { filename: "generated/Melodica_A#4.wav", noteWithOctave: "A#4", midi: 70, gain: 1.0 },
+  { filename: "generated/Melodica_B4.wav", noteWithOctave: "B4", midi: 71, gain: 1.0 },
+  { filename: "samples/C5v100.wav", noteWithOctave: "C5", midi: 72, gain: 1.0 },
+  { filename: "generated/Melodica_C#5.wav", noteWithOctave: "C#5", midi: 73, gain: 1.0 },
+  { filename: "generated/Melodica_D5.wav", noteWithOctave: "D5", midi: 74, gain: 1.0 },
+  { filename: "generated/Melodica_D#5.wav", noteWithOctave: "D#5", midi: 75, gain: 1.0 },
+  { filename: "generated/Melodica_E5.wav", noteWithOctave: "E5", midi: 76, gain: 1.0 },
+  { filename: "generated/Melodica_F5.wav", noteWithOctave: "F5", midi: 77, gain: 1.0 },
+  { filename: "samples/F#5v100.wav", noteWithOctave: "F#5", midi: 78, gain: 1.0 },
+  { filename: "generated/Melodica_G5.wav", noteWithOctave: "G5", midi: 79, gain: 1.0 },
+  { filename: "generated/Melodica_G#5.wav", noteWithOctave: "G#5", midi: 80, gain: 1.0 },
+  { filename: "generated/Melodica_A5.wav", noteWithOctave: "A5", midi: 81, gain: 1.0 },
+  { filename: "generated/Melodica_A#5.wav", noteWithOctave: "A#5", midi: 82, gain: 1.0 }
 ];
 
 export type ResolvedMelodicaSampleDef = {
@@ -44,10 +66,12 @@ export function getMelodicaPlaybackRate(semitoneShift: number) {
   return Math.pow(2, semitoneShift / 12);
 }
 
-// Nearest sample by full MIDI distance (octave-aware, never by pitch class).
-// Playable targets hit an exact sample (shift 0, rate 1.0) only when they
-// happen to be a recorded C or F#; otherwise falls back to the nearest one,
-// exactly like resolveFluteSampleDef.
+// Nearest def by full MIDI distance (octave-aware, never by pitch class).
+// Playable targets (60..82, i.e. every note any supported scale can
+// produce) always hit an exact def: shift 0, rate 1.0. This fallback only
+// engages for a target outside that range, which cannot happen given the
+// scale engine's own root/interval bounds -- kept only as the same
+// defensive fallback fluteSampleData.ts/kalimbaSampleData.ts already have.
 export function resolveMelodicaSampleDef(targetMidi: number): ResolvedMelodicaSampleDef {
   const def = MELODICA_SAMPLE_DEFS.reduce((best, sample) => {
     const bestDistance = Math.abs(targetMidi - best.midi);

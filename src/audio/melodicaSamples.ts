@@ -6,20 +6,33 @@ export { getMelodicaPlaybackRate } from "./melodicaSampleData";
 // Metro needs static require() calls (plain string literals, not template
 // literals or variables), so the asset table is spelled out here in full and
 // joined with the pure sample metadata (melodicaSampleData.ts) by filename --
-// the exact same pattern fluteSamples.ts/kalimbaSamples.ts use.
+// the exact same pattern fluteSamples.ts/kalimbaSamples.ts use. Every entry
+// is either a real recorded v100 take (samples/) or an offline-pre-rendered
+// WAV (generated/, produced by scripts/generate-melodica-shifted-samples.js).
 const SAMPLE_SOURCES: Record<string, number> = {
-  "F#1v100.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/samples/F#1v100.wav"),
-  "C2v100.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/samples/C2v100.wav"),
-  "F#2v100.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/samples/F#2v100.wav"),
-  "C3v100.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/samples/C3v100.wav"),
-  "F#3v100.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/samples/F#3v100.wav"),
-  "C4v100.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/samples/C4v100.wav"),
-  "F#4v100.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/samples/F#4v100.wav"),
-  "C5v100.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/samples/C5v100.wav"),
-  "F#5v100.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/samples/F#5v100.wav"),
-  "C6v100.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/samples/C6v100.wav"),
-  "F#6v100.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/samples/F#6v100.wav"),
-  "C7v100.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/samples/C7v100.wav")
+  "samples/C4v100.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/samples/C4v100.wav"),
+  "samples/F#4v100.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/samples/F#4v100.wav"),
+  "samples/C5v100.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/samples/C5v100.wav"),
+  "samples/F#5v100.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/samples/F#5v100.wav"),
+  "generated/Melodica_C#4.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/Melodica_C#4.wav"),
+  "generated/Melodica_D4.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/Melodica_D4.wav"),
+  "generated/Melodica_D#4.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/Melodica_D#4.wav"),
+  "generated/Melodica_E4.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/Melodica_E4.wav"),
+  "generated/Melodica_F4.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/Melodica_F4.wav"),
+  "generated/Melodica_G4.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/Melodica_G4.wav"),
+  "generated/Melodica_G#4.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/Melodica_G#4.wav"),
+  "generated/Melodica_A4.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/Melodica_A4.wav"),
+  "generated/Melodica_A#4.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/Melodica_A#4.wav"),
+  "generated/Melodica_B4.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/Melodica_B4.wav"),
+  "generated/Melodica_C#5.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/Melodica_C#5.wav"),
+  "generated/Melodica_D5.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/Melodica_D5.wav"),
+  "generated/Melodica_D#5.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/Melodica_D#5.wav"),
+  "generated/Melodica_E5.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/Melodica_E5.wav"),
+  "generated/Melodica_F5.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/Melodica_F5.wav"),
+  "generated/Melodica_G5.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/Melodica_G5.wav"),
+  "generated/Melodica_G#5.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/Melodica_G#5.wav"),
+  "generated/Melodica_A5.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/Melodica_A5.wav"),
+  "generated/Melodica_A#5.wav": require("../../assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/Melodica_A#5.wav")
 };
 
 MELODICA_SAMPLE_DEFS.forEach((def) => {

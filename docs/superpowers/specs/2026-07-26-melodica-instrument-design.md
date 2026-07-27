@@ -1,7 +1,8 @@
 # Melodica: third playable instrument
 
 Date: 2026-07-26
-Status: approved for planning
+Status: implemented (see 2026-07-27 amendment below — sample resolution
+changed from runtime pitch-shifting to pre-rendered exact samples)
 
 ## Goal
 
@@ -159,6 +160,54 @@ No changes to `ScaleInstrument.tsx`, `AudioEngine`, `padLayout.ts`, the shared
   calibration mode (move/resize/save/reset, invisible zones in normal play),
   for all three instruments (regression-check Flute and Kalimba are
   unaffected).
+
+## Amendment (2026-07-27): runtime pitch-shifting was unreliable on-device, switched to pre-rendered exact samples
+
+After implementation, on-device testing via the temporary Piano Audio Debug
+screen showed exactly the failure this codebase had already hit twice before:
+groups of notes sharing a source (all riding C4v100.wav, all riding
+F#4v100.wav, etc.) sounded IDENTICAL despite `AudioEngine`'s own verification
+logging different `playbackRate` values applied with `pitchCorrection=false`
+for each. This is the same on-device unreliability documented in
+`audioEngine.ts`'s own comments — the OS can silently reset the pitch
+algorithm during a player item's readiness transition in a way invisible to
+the JS-side echo of what was requested — and is exactly why the Flute and the
+Kalimba were BOTH already migrated off runtime pitch-shifting to fully
+pre-rendered, per-note exact samples before this spec was written. Reusing
+`resolveFluteSampleDef`'s *code shape* for Melodica was based on a stale
+reading of the Flute as still doing live runtime shifting; in current reality
+neither other instrument does, so Melodica was the only one actually
+exercising the unreliable path.
+
+Given this, the user explicitly approved superseding the original "no new WAV
+files" non-goal: Melodica now follows the exact same pre-rendering pipeline as
+the Flute/Kalimba.
+
+- New `scripts/generate-melodica-shifted-samples.js` (mirrors
+  `generate-kalimba-shifted-samples.js`): for every MIDI 60..82 with no exact
+  recorded C/F# v100 take, resamples the nearest recorded take by
+  `2^(shift/12)` with the same Lanczos-windowed-sinc kernel, writing one WAV
+  per note into `assets/audio/piano/FM-Piano1 SFZ+WAV-20190916/generated/`.
+  19 files generated (4 of the 23 playable notes — C4, F#4, C5, F#5 — were
+  already exact recordings).
+- `melodicaSampleData.ts` rewritten to the exact-match pattern (mirrors
+  `kalimbaSampleData.ts` post-migration): `MELODICA_SAMPLE_DEFS` now has one
+  entry per playable MIDI note (60..82, 23 total, each `filename` pointing at
+  either `samples/*v100.wav` or `generated/Melodica_*.wav`), and
+  `resolveMelodicaSampleDef` always resolves shift 0 / rate 1.0 for every
+  in-range target.
+- `melodicaSamples.ts` updated to require() all 23 files (4 real + 19
+  generated) instead of the original 12.
+- `scripts/test-melodica-mapping.js` updated to assert the same invariants
+  `test-kalimba-mapping.js` does: `shift === 0` and `rate === 1` for every
+  scale/hole (no longer just "sounding pitch happens to equal target"), and
+  pitch-verifies all 23 files (±10 cents tolerance, tighter than the
+  Kalimba's ±60 since these are clean digital recordings/resamples, not a
+  real detuned acoustic instrument).
+
+Everything else in this spec (architecture reuse, pad layout, calibration,
+navigation, non-goals around `ScaleInstrument`/`AudioEngine`/Flute/Kalimba
+being untouched) is unchanged.
 
 ## Separate, already-resolved item: Kalimba touch behavior
 
