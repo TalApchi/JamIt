@@ -18,7 +18,7 @@ import * as Haptics from "expo-haptics";
 import { AudioEngine, PlayableNote } from "../../audio/audioEngine";
 import { SampleResolver } from "../../audio/sampleTypes";
 import { RootNote, ScaleMode, getScaleName } from "../../music/scaleEngine";
-import { generatePitchedScale } from "../../music/noteEngine";
+import { generatePitchedScale, midiToNoteWithOctave } from "../../music/noteEngine";
 import {
   CalibratedPad,
   ImageSize,
@@ -61,7 +61,22 @@ export type ScaleInstrumentProps = {
   // hitHeight/visibleHeight as a half-height (see CalibratedPad), resized
   // independently per axis instead of radially.
   padShape?: PadShape;
+  // Maps a pad's `degree` to a scale entry + octave shift. Defaults to the
+  // plain single-octave mapping every existing instrument uses (pad N ->
+  // scale[N-1], no shift) -- with a 7-note scale and 7 pads, `octaveOffset`
+  // is always 0, so this is a no-op for them. Pass an override for an
+  // instrument with more pads than scale degrees, e.g. the 14-pad Distortion
+  // Guitar (two octave rows): its override sends pads 1-7 to scale[0..6]
+  // with octaveOffset +1 and pads 8-14 to scale[0..6] with octaveOffset 0.
+  resolveDegree?: (degree: number, scaleLength: number) => { scaleIndex: number; octaveOffset: number };
 };
+
+function defaultResolveDegree(degree: number, scaleLength: number) {
+  return {
+    scaleIndex: (degree - 1) % scaleLength,
+    octaveOffset: Math.floor((degree - 1) / scaleLength)
+  };
+}
 
 type ActiveTouch = {
   degree?: number;
@@ -93,7 +108,8 @@ export function ScaleInstrument({
   calibrationStore,
   noteStartHoldMs = NOTE_START_HOLD_MS,
   stopOnRelease = true,
-  padShape = "circle"
+  padShape = "circle",
+  resolveDegree = defaultResolveDegree
 }: ScaleInstrumentProps) {
   const isRectangle = padShape === "rectangle";
   const audioEngine = useRef(new AudioEngine(resolveSample)).current;
@@ -227,38 +243,45 @@ export function ScaleInstrument({
 
   const getPlayableNote = useCallback(
     (degree: number): PlayableNote | undefined => {
-      const note = scale[degree - 1];
-      if (!note) return undefined;
+      const { scaleIndex, octaveOffset } = resolveDegree(degree, scale.length);
+      const scaleDegree = scale[scaleIndex];
+      if (!scaleDegree) return undefined;
+
+      const midi = scaleDegree.midi + octaveOffset * 12;
+      const noteWithOctave = octaveOffset === 0 ? scaleDegree.noteWithOctave : midiToNoteWithOctave(midi);
 
       return {
-        key: `${scaleName}|pad-${degree}|${note.noteWithOctave}`,
+        key: `${scaleName}|pad-${degree}|${noteWithOctave}`,
         scaleName,
         padIndex: degree,
-        noteWithOctave: note.noteWithOctave,
-        midi: note.midi
+        noteWithOctave,
+        midi
       };
     },
-    [scale, scaleName]
+    [resolveDegree, scale, scaleName]
   );
 
-  // Preload one player per scale degree so the first press has no load
-  // latency, and rebuild the mapping whenever the scale changes.
+  // Preload one player per pad so the first press has no load latency, and
+  // rebuild the mapping whenever the scale (or pad layout) changes. Iterates
+  // `holes` (every real pad, e.g. 14 for a two-octave-row instrument), not
+  // `scale` (always 7 entries) -- otherwise a >7-pad instrument would only
+  // ever preload its first octave row.
   useEffect(() => {
-    const notes = scale
-      .map((degree) => getPlayableNote(degree.degree))
+    const notes = holes
+      .map((hole) => getPlayableNote(hole.degree))
       .filter((note): note is PlayableNote => Boolean(note));
     audioEngine.prepareScale(notes).catch((error) => {
       console.warn("Unable to preload scale samples", error);
     });
-  }, [audioEngine, getPlayableNote, scale]);
+  }, [audioEngine, getPlayableNote, holes]);
 
   const logCurrentMapping = useCallback(() => {
-    const lines = scale.map((degree) => {
-      const note = getPlayableNote(degree.degree);
+    const lines = holes.map((hole) => {
+      const note = getPlayableNote(hole.degree);
       if (!note) return "";
       const debug = audioEngine.getDebugInfo(note);
       return [
-        `pad=${degree.degree}`,
+        `pad=${hole.degree}`,
         `target=${note.noteWithOctave}`,
         `source=${debug.sourceFilename}`,
         `shift=${debug.semitoneShift}`,
@@ -268,7 +291,7 @@ export function ScaleInstrument({
     });
 
     console.log(`[${instrumentLabel} mapping] ${scaleName}\n${lines.join("\n")}`);
-  }, [audioEngine, getPlayableNote, instrumentLabel, scale, scaleName]);
+  }, [audioEngine, getPlayableNote, holes, instrumentLabel, scaleName]);
 
   useEffect(() => {
     logCurrentMapping();

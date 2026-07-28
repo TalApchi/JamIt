@@ -8,17 +8,20 @@ import { BambooFluteScreen } from "./src/screens/BambooFluteScreen";
 import { KalimbaScreen } from "./src/screens/KalimbaScreen";
 import { MelodicaScreen } from "./src/screens/MelodicaScreen";
 import { SynthBassScreen } from "./src/screens/SynthBassScreen";
+import { DistortionGuitarScreen } from "./src/screens/DistortionGuitarScreen";
+import { GuitarAudioDebugScreen } from "./src/screens/GuitarAudioDebugScreen";
 import { InstrumentSelectionScreen, Instrument } from "./src/screens/InstrumentSelectionScreen";
 import { ScaleSelectionScreen } from "./src/screens/ScaleSelectionScreen";
 import { RootNote, ScaleMode, getScaleName } from "./src/music/scaleEngine";
 
-type Phase = "instrument" | "setup" | "playing" | "audio-debug" | "piano-audio-debug";
+type Phase = "instrument" | "setup" | "playing" | "audio-debug" | "piano-audio-debug" | "guitar-audio-debug";
 
 const INSTRUMENT_LABEL: Record<Instrument, string> = {
   flute: "flute",
   kalimba: "kalimba",
   melodica: "melodica",
-  synthBass: "synth bass"
+  synthBass: "synth bass",
+  distortionGuitar: "distortion guitar"
 };
 
 export default function App() {
@@ -30,12 +33,12 @@ export default function App() {
 
   const scaleName = useMemo(() => getScaleName(rootNote, mode), [rootNote, mode]);
 
-  // Only the Kalimba's, Melodica's, and Synth Bass's own play screens want
-  // landscape (each locks to it itself); every other screen in the app —
-  // including this one — is portrait-only. app.json can no longer hard-lock
-  // the whole app to portrait (those screens need to unlock into landscape),
-  // so the root locks portrait explicitly here instead, once, for the app's
-  // lifetime.
+  // Only the Kalimba's, Melodica's, Synth Bass's, and Distortion Guitar's own
+  // play screens want landscape (each locks to it itself); every other
+  // screen in the app — including this one — is portrait-only. app.json can
+  // no longer hard-lock the whole app to portrait (those screens need to
+  // unlock into landscape), so the root locks portrait explicitly here
+  // instead, once, for the app's lifetime.
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch((error) => {
       console.warn("Unable to lock app root to portrait", error);
@@ -56,6 +59,15 @@ export default function App() {
       <>
         <StatusBar hidden />
         <PianoAudioDebugScreen onExit={() => setPhase("instrument")} />
+      </>
+    );
+  }
+
+  if (phase === "guitar-audio-debug") {
+    return (
+      <>
+        <StatusBar hidden />
+        <GuitarAudioDebugScreen onExit={() => setPhase("instrument")} />
       </>
     );
   }
@@ -91,6 +103,14 @@ export default function App() {
               onPress={() => setPhase("piano-audio-debug")}
             >
               <Text style={styles.changeInstrumentText}>Piano Audio Debug (temporary)</Text>
+            </TouchableOpacity>
+            {/* Temporary isolation tool -- see src/screens/GuitarAudioDebugScreen.tsx */}
+            <TouchableOpacity
+              style={styles.changeInstrumentButton}
+              activeOpacity={0.85}
+              onPress={() => setPhase("guitar-audio-debug")}
+            >
+              <Text style={styles.changeInstrumentText}>Guitar Audio Debug (temporary)</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -166,6 +186,14 @@ export default function App() {
         />
       ) : instrument === "synthBass" ? (
         <SynthBassScreen
+          rootNote={rootNote}
+          mode={mode}
+          initialCalibrationMode={startsInCalibration}
+          onExit={() => setPhase("setup")}
+          onExitCalibration={() => setStartsInCalibration(false)}
+        />
+      ) : instrument === "distortionGuitar" ? (
+        <DistortionGuitarScreen
           rootNote={rootNote}
           mode={mode}
           initialCalibrationMode={startsInCalibration}

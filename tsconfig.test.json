@@ -14,6 +14,7 @@
     "src/audio/fluteSampleData.ts",
     "src/audio/kalimbaSampleData.ts",
     "src/audio/melodicaSampleData.ts",
-    "src/audio/synthBassSampleData.ts"
+    "src/audio/synthBassSampleData.ts",
+    "src/audio/distortionGuitarSampleData.ts"
   ]
 }

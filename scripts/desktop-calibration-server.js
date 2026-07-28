@@ -68,10 +68,35 @@ const INSTRUMENTS = {
       { degree: 6, sourceX: 1163, sourceY: 541, visibleRadius: 66, hitRadius: 80, visibleHeight: 230, hitHeight: 280, isRoot: false },
       { degree: 7, sourceX: 1359, sourceY: 541, visibleRadius: 66, hitRadius: 80, visibleHeight: 230, hitHeight: 280, isRoot: false }
     ]
+  },
+  distortionGuitar: {
+    label: "Distortion Guitar",
+    imagePath: path.join(root, "assets", "images", "distortion-guitar.png"),
+    calibrationPath: path.join(root, "src", "components", "DistortionGuitar", "calibration.generated.json"),
+    imageSize: { width: 1536, height: 1024 },
+    shape: "rectangle",
+    defaults: [
+      { degree: 1, sourceX: 218, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: true },
+      { degree: 2, sourceX: 314, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
+      { degree: 3, sourceX: 411, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
+      { degree: 4, sourceX: 507, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
+      { degree: 5, sourceX: 604, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
+      { degree: 6, sourceX: 700, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
+      { degree: 7, sourceX: 796, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
+      { degree: 8, sourceX: 893, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: true },
+      { degree: 9, sourceX: 989, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
+      { degree: 10, sourceX: 1086, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
+      { degree: 11, sourceX: 1182, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
+      { degree: 12, sourceX: 1279, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
+      { degree: 13, sourceX: 1375, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
+      { degree: 14, sourceX: 1471, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false }
+    ]
   }
 };
 
-const instrumentId = ["kalimba", "melodica", "synthBass"].includes(process.env.INSTRUMENT) ? process.env.INSTRUMENT : "flute";
+const instrumentId = ["kalimba", "melodica", "synthBass", "distortionGuitar"].includes(process.env.INSTRUMENT)
+  ? process.env.INSTRUMENT
+  : "flute";
 const instrumentConfig = INSTRUMENTS[instrumentId];
 const calibrationPath = instrumentConfig.calibrationPath;
 const imagePath = instrumentConfig.imagePath;
@@ -367,7 +392,7 @@ const page = `<!doctype html>
       fetch("/calibration")
         .then((response) => response.json())
         .then((data) => {
-          if (Array.isArray(data.holes) && data.holes.length === 7) {
+          if (Array.isArray(data.holes) && data.holes.length === defaults.length) {
             holes = data.holes;
           }
           render();
@@ -401,7 +426,11 @@ const server = http.createServer(async (request, response) => {
 
     if (request.method === "POST" && request.url === "/calibration") {
       const body = JSON.parse(await readBody(request));
-      if (!Array.isArray(body.holes) || body.holes.length !== 7 || !body.holes.every(isValidHole)) {
+      if (
+        !Array.isArray(body.holes) ||
+        body.holes.length !== instrumentConfig.defaults.length ||
+        !body.holes.every(isValidHole)
+      ) {
         response.writeHead(400);
         response.end("Invalid calibration");
         return;

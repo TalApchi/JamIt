@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export type Instrument = "flute" | "kalimba" | "melodica" | "synthBass";
+export type Instrument = "flute" | "kalimba" | "melodica" | "synthBass" | "distortionGuitar";
 
 type Props = {
   instrument: Instrument;
@@ -12,7 +12,8 @@ const INSTRUMENTS: Array<{ id: Instrument; label: string }> = [
   { id: "flute", label: "Bamboo Flute" },
   { id: "kalimba", label: "Kalimba" },
   { id: "melodica", label: "Melodica" },
-  { id: "synthBass", label: "Synth Bass" }
+  { id: "synthBass", label: "Synth Bass" },
+  { id: "distortionGuitar", label: "Distortion Guitar" }
 ];
 
 export function InstrumentSelectionScreen({ instrument, onInstrumentChange }: Props) {
@@ -51,6 +52,7 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 10
   },
   button: {
@@ -59,8 +61,11 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255, 244, 221, 0.12)",
     borderRadius: 8,
     borderWidth: 1,
-    flex: 1,
-    height: 56,
+    flexGrow: 1,
+    minWidth: "45%",
+    minHeight: 56,
+    paddingVertical: 8,
+    paddingHorizontal: 6,
     justifyContent: "center"
   },
   selectedButton: {
