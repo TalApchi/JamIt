@@ -1,12 +1,75 @@
 {
-  "updatedAt": 0,
+  "updatedAt": 1785189622897,
   "holes": [
-    { "degree": 1, "sourceX": 351, "sourceY": 563, "visibleRadius": 26, "hitRadius": 32, "visibleHeight": 123, "hitHeight": 150, "isRoot": true },
-    { "degree": 2, "sourceX": 492, "sourceY": 563, "visibleRadius": 26, "hitRadius": 32, "visibleHeight": 123, "hitHeight": 150, "isRoot": false },
-    { "degree": 3, "sourceX": 639, "sourceY": 563, "visibleRadius": 26, "hitRadius": 32, "visibleHeight": 123, "hitHeight": 150, "isRoot": false },
-    { "degree": 4, "sourceX": 717, "sourceY": 563, "visibleRadius": 26, "hitRadius": 32, "visibleHeight": 123, "hitHeight": 150, "isRoot": false },
-    { "degree": 5, "sourceX": 867, "sourceY": 563, "visibleRadius": 26, "hitRadius": 32, "visibleHeight": 123, "hitHeight": 150, "isRoot": false },
-    { "degree": 6, "sourceX": 1015, "sourceY": 563, "visibleRadius": 26, "hitRadius": 32, "visibleHeight": 123, "hitHeight": 150, "isRoot": false },
-    { "degree": 7, "sourceX": 1170, "sourceY": 563, "visibleRadius": 26, "hitRadius": 32, "visibleHeight": 123, "hitHeight": 150, "isRoot": false }
+    {
+      "degree": 1,
+      "sourceX": 369.06643579695617,
+      "sourceY": 569.4757586803973,
+      "visibleRadius": 45.05635833409274,
+      "hitRadius": 54.946778456210666,
+      "visibleHeight": 145.94348491752484,
+      "hitHeight": 177.9798596555181,
+      "isRoot": true
+    },
+    {
+      "degree": 2,
+      "sourceX": 492,
+      "sourceY": 563,
+      "visibleRadius": 52.97388316777541,
+      "hitRadius": 64.60229654606758,
+      "visibleHeight": 149.29462681126404,
+      "hitHeight": 182.06661806251714,
+      "isRoot": false
+    },
+    {
+      "degree": 3,
+      "sourceX": 619.9105076095872,
+      "sourceY": 568.2812813268932,
+      "visibleRadius": 48.97431878246604,
+      "hitRadius": 59.72477900300737,
+      "visibleHeight": 143.9845046933382,
+      "hitHeight": 175.5908593821198,
+      "isRoot": false
+    },
+    {
+      "degree": 4,
+      "sourceX": 741.7491114553904,
+      "sourceY": 561.1143260730885,
+      "visibleRadius": 47.994847352592764,
+      "hitRadius": 58.53030164950337,
+      "visibleHeight": 149.8614453658981,
+      "hitHeight": 182.75786020231476,
+      "isRoot": false
+    },
+    {
+      "degree": 5,
+      "sourceX": 867,
+      "sourceY": 563,
+      "visibleRadius": 54.01209149731154,
+      "hitRadius": 65.86840426501408,
+      "visibleHeight": 149.29462681126404,
+      "hitHeight": 182.06661806251714,
+      "isRoot": false
+    },
+    {
+      "degree": 6,
+      "sourceX": 1015,
+      "sourceY": 563,
+      "visibleRadius": 58.02630274309667,
+      "hitRadius": 70.76378383304473,
+      "visibleHeight": 153.2125872596373,
+      "hitHeight": 186.84461860931378,
+      "isRoot": false
+    },
+    {
+      "degree": 7,
+      "sourceX": 1144.2941766153285,
+      "sourceY": 559.9198031531942,
+      "visibleRadius": 53.871750660712756,
+      "hitRadius": 65.69725690330824,
+      "visibleHeight": 148.88193657158484,
+      "hitHeight": 181.56333728242055,
+      "isRoot": false
+    }
   ]
 }
