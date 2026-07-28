@@ -52,10 +52,26 @@ const INSTRUMENTS = {
       { degree: 6, sourceX: 1015, sourceY: 563, visibleRadius: 26, hitRadius: 32, visibleHeight: 123, hitHeight: 150, isRoot: false },
       { degree: 7, sourceX: 1170, sourceY: 563, visibleRadius: 26, hitRadius: 32, visibleHeight: 123, hitHeight: 150, isRoot: false }
     ]
+  },
+  synthBass: {
+    label: "Synth Bass",
+    imagePath: path.join(root, "assets", "images", "synth-bass.png"),
+    calibrationPath: path.join(root, "src", "components", "SynthBass", "calibration.generated.json"),
+    imageSize: { width: 1536, height: 1024 },
+    shape: "rectangle",
+    defaults: [
+      { degree: 1, sourceX: 179, sourceY: 541, visibleRadius: 66, hitRadius: 80, visibleHeight: 230, hitHeight: 280, isRoot: true },
+      { degree: 2, sourceX: 377, sourceY: 541, visibleRadius: 66, hitRadius: 80, visibleHeight: 230, hitHeight: 280, isRoot: false },
+      { degree: 3, sourceX: 574, sourceY: 541, visibleRadius: 66, hitRadius: 80, visibleHeight: 230, hitHeight: 280, isRoot: false },
+      { degree: 4, sourceX: 770, sourceY: 541, visibleRadius: 66, hitRadius: 80, visibleHeight: 230, hitHeight: 280, isRoot: false },
+      { degree: 5, sourceX: 967, sourceY: 541, visibleRadius: 66, hitRadius: 80, visibleHeight: 230, hitHeight: 280, isRoot: false },
+      { degree: 6, sourceX: 1163, sourceY: 541, visibleRadius: 66, hitRadius: 80, visibleHeight: 230, hitHeight: 280, isRoot: false },
+      { degree: 7, sourceX: 1359, sourceY: 541, visibleRadius: 66, hitRadius: 80, visibleHeight: 230, hitHeight: 280, isRoot: false }
+    ]
   }
 };
 
-const instrumentId = ["kalimba", "melodica"].includes(process.env.INSTRUMENT) ? process.env.INSTRUMENT : "flute";
+const instrumentId = ["kalimba", "melodica", "synthBass"].includes(process.env.INSTRUMENT) ? process.env.INSTRUMENT : "flute";
 const instrumentConfig = INSTRUMENTS[instrumentId];
 const calibrationPath = instrumentConfig.calibrationPath;
 const imagePath = instrumentConfig.imagePath;

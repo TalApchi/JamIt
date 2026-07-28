@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export type Instrument = "flute" | "kalimba" | "melodica";
+export type Instrument = "flute" | "kalimba" | "melodica" | "synthBass";
 
 type Props = {
   instrument: Instrument;
@@ -11,7 +11,8 @@ type Props = {
 const INSTRUMENTS: Array<{ id: Instrument; label: string }> = [
   { id: "flute", label: "Bamboo Flute" },
   { id: "kalimba", label: "Kalimba" },
-  { id: "melodica", label: "Melodica" }
+  { id: "melodica", label: "Melodica" },
+  { id: "synthBass", label: "Synth Bass" }
 ];
 
 export function InstrumentSelectionScreen({ instrument, onInstrumentChange }: Props) {

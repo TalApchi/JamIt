@@ -11,12 +11,14 @@
     "calibrate:desktop": "node scripts/desktop-calibration-server.js",
     "calibrate:desktop:kalimba": "cross-env INSTRUMENT=kalimba node scripts/desktop-calibration-server.js",
     "calibrate:desktop:melodica": "cross-env INSTRUMENT=melodica node scripts/desktop-calibration-server.js",
+    "calibrate:desktop:synthbass": "cross-env INSTRUMENT=synthBass node scripts/desktop-calibration-server.js",
     "typecheck": "tsc --noEmit",
     "test:music": "node scripts/test-scale-engine.js",
     "test:mapping": "node scripts/test-audio-mapping.js",
     "test:mapping:kalimba": "node scripts/test-kalimba-mapping.js",
     "test:mapping:melodica": "node scripts/test-melodica-mapping.js",
-    "test": "npm run typecheck && npm run test:music && npm run test:mapping && npm run test:mapping:kalimba && npm run test:mapping:melodica"
+    "test:mapping:synthbass": "node scripts/test-synthbass-mapping.js",
+    "test": "npm run typecheck && npm run test:music && npm run test:mapping && npm run test:mapping:kalimba && npm run test:mapping:melodica && npm run test:mapping:synthbass"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",

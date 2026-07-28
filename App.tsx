@@ -7,6 +7,7 @@ import { PianoAudioDebugScreen } from "./src/screens/PianoAudioDebugScreen";
 import { BambooFluteScreen } from "./src/screens/BambooFluteScreen";
 import { KalimbaScreen } from "./src/screens/KalimbaScreen";
 import { MelodicaScreen } from "./src/screens/MelodicaScreen";
+import { SynthBassScreen } from "./src/screens/SynthBassScreen";
 import { InstrumentSelectionScreen, Instrument } from "./src/screens/InstrumentSelectionScreen";
 import { ScaleSelectionScreen } from "./src/screens/ScaleSelectionScreen";
 import { RootNote, ScaleMode, getScaleName } from "./src/music/scaleEngine";
@@ -16,7 +17,8 @@ type Phase = "instrument" | "setup" | "playing" | "audio-debug" | "piano-audio-d
 const INSTRUMENT_LABEL: Record<Instrument, string> = {
   flute: "flute",
   kalimba: "kalimba",
-  melodica: "melodica"
+  melodica: "melodica",
+  synthBass: "synth bass"
 };
 
 export default function App() {
@@ -28,11 +30,12 @@ export default function App() {
 
   const scaleName = useMemo(() => getScaleName(rootNote, mode), [rootNote, mode]);
 
-  // Only the Kalimba's and Melodica's own play screens want landscape (each
-  // locks to it itself); every other screen in the app — including this one
-  // — is portrait-only. app.json can no longer hard-lock the whole app to
-  // portrait (those screens need to unlock into landscape), so the root
-  // locks portrait explicitly here instead, once, for the app's lifetime.
+  // Only the Kalimba's, Melodica's, and Synth Bass's own play screens want
+  // landscape (each locks to it itself); every other screen in the app —
+  // including this one — is portrait-only. app.json can no longer hard-lock
+  // the whole app to portrait (those screens need to unlock into landscape),
+  // so the root locks portrait explicitly here instead, once, for the app's
+  // lifetime.
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch((error) => {
       console.warn("Unable to lock app root to portrait", error);
@@ -155,6 +158,14 @@ export default function App() {
         />
       ) : instrument === "melodica" ? (
         <MelodicaScreen
+          rootNote={rootNote}
+          mode={mode}
+          initialCalibrationMode={startsInCalibration}
+          onExit={() => setPhase("setup")}
+          onExitCalibration={() => setStartsInCalibration(false)}
+        />
+      ) : instrument === "synthBass" ? (
+        <SynthBassScreen
           rootNote={rootNote}
           mode={mode}
           initialCalibrationMode={startsInCalibration}
