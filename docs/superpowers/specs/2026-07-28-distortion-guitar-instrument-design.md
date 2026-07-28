@@ -186,3 +186,61 @@ factory, or any Bamboo Flute / Kalimba / Melodica / Synth Bass file.
   move/resize/save/reset, invisible in normal play), Guitar Audio Debug
   screen's 35 buttons for verifying every note (including the extreme +10
   semitone ones) before testing the full instrument.
+
+## Amendment (2026-07-28): pad order reversed after on-device testing
+
+After playing the shipped layout, the user reported the pitch "reset" felt
+wrong: reading left to right, the original mapping went C5 D5 E5 F5 G5 A5 B5
+(ascending) then dropped back down to C4 D4 E4 F4 G4 A4 B4 (ascending again)
+-- a big downward jump at the row boundary (pad 7 -> pad 8). The octave
+assignment itself (left=5, right=4) was already correct and unchanged; only
+the note order within each half needed to reverse so pitch rises
+continuously moving right to left across the *entire* instrument with no
+reset anywhere, including at the boundary.
+
+`DistortionGuitarInstrument.tsx`'s `resolveDegree` changed from
+`scaleIndex: degree - 1` (ascending left to right within each half) to
+`scaleIndex: scaleLength - degree` (descending): pad 1 (the left edge of the
+left half) now maps to scale index `scaleLength - 1` (the 7th degree), and
+pad `scaleLength` (the right edge of the left half, i.e. pad 7) maps to
+scale index 0 (the tonic) -- the same formula applied symmetrically to the
+right half. Verified directly against the user's new example:
+
+- C Major, left (highest): B5 A5 G5 F5 E5 D5 C5. ✓
+- C Major, right (lowest): B4 A4 G4 F4 E4 D4 C4. ✓
+- Confirmed programmatically monotonic (every pad's pitch is strictly higher
+  than the pad to its right, including across the row boundary: pad 7 = C5
+  = octave-5 tonic > pad 8 = B4 = octave-4 7th degree).
+
+`isRoot` moved from degrees 1/8 to degrees 7/14 (the pads that are now
+actually the tonic of each half). `holeLayout.ts`, `calibration.generated.json`,
+`desktop-calibration-server.js`'s defaults, and `test-guitar-mapping.js`'s
+duplicated `resolveDegree` all updated to match.
+
+## Amendment (2026-07-28): notes shortened to ~1 second
+
+The user also reported notes rang out for several seconds after a tap and
+asked for roughly 1 second (2-3x shorter). Root cause: the raw pack is a
+looping-sustain guitar patch (`loop_mode=loop_continuous` in the SFZ, several
+seconds long per recording) and `AudioEngine` never loops for any
+instrument, so a note simply played through its full raw recording length
+once.
+
+Fix, entirely in `scripts/generate-guitar-shifted-samples.js`: every one of
+the 35 notes now gets trimmed to 1.0 second with a short (60ms) linear
+fade-out to avoid a click, including the 7 notes that land exactly on a
+recorded anchor -- previously those 7 referenced their raw source file
+directly with no processing at all, which is why they were the longest
+(some raw recordings run 5-10+ seconds). `distortionGuitarSampleData.ts`
+and `distortionGuitarSamples.ts` updated so all 35 entries point at
+`generated/Guitar_<Note>.wav` uniformly (no more direct references to the
+raw pack from source code — the raw files remain on disk purely as input
+material for the generator script).
+
+Verified: all 35 regenerated files measure exactly 1.00s, and pitch
+accuracy is unaffected (worst case 5.0 cents off, same order of magnitude as
+before trimming). `test-guitar-mapping.js` gained a duration assertion
+(≤1.1s tolerance) so a future regression here would be caught automatically.
+Tap-to-play interaction itself (instant start on touch-down, no hold
+threshold, rings past release, slide/multi-touch) is unchanged -- only the
+note's own recorded length changed.

@@ -7,26 +7,25 @@ export { getDistortionGuitarPlaybackRate } from "./distortionGuitarSampleData";
 // literals or variables), so the asset table is spelled out here in full and
 // joined with the pure sample metadata (distortionGuitarSampleData.ts) by
 // filename -- the exact same pattern every other instrument's samples module
-// uses. Every entry is either a real recorded take
-// (assets/audio/DistortionGuitar/) or an offline-pre-rendered WAV
-// (generated/, produced by scripts/generate-guitar-shifted-samples.js).
+// uses. Every entry is an offline-pre-rendered, trimmed WAV produced by
+// scripts/generate-guitar-shifted-samples.js (see that file's own comment
+// for why even the exact-match notes are pre-rendered here, unlike every
+// other instrument).
 const SAMPLE_SOURCES: Record<string, number> = {
-  "A4.wav": require("../../assets/audio/DistortionGuitar/A4.wav"),
-  "A5.wav": require("../../assets/audio/DistortionGuitar/A5.wav"),
-  "C#4.wav": require("../../assets/audio/DistortionGuitar/C#4.wav"),
-  "C#5.wav": require("../../assets/audio/DistortionGuitar/C#5.wav"),
-  "C6.wav": require("../../assets/audio/DistortionGuitar/C6.wav"),
-  "F4.wav": require("../../assets/audio/DistortionGuitar/F4.wav"),
-  "F5.wav": require("../../assets/audio/DistortionGuitar/F5.wav"),
   "generated/Guitar_A#4.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_A#4.wav"),
   "generated/Guitar_A#5.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_A#5.wav"),
   "generated/Guitar_A#6.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_A#6.wav"),
+  "generated/Guitar_A4.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_A4.wav"),
+  "generated/Guitar_A5.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_A5.wav"),
   "generated/Guitar_A6.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_A6.wav"),
   "generated/Guitar_B4.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_B4.wav"),
   "generated/Guitar_B5.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_B5.wav"),
+  "generated/Guitar_C#4.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_C#4.wav"),
+  "generated/Guitar_C#5.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_C#5.wav"),
   "generated/Guitar_C#6.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_C#6.wav"),
   "generated/Guitar_C4.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_C4.wav"),
   "generated/Guitar_C5.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_C5.wav"),
+  "generated/Guitar_C6.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_C6.wav"),
   "generated/Guitar_D#4.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_D#4.wav"),
   "generated/Guitar_D#5.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_D#5.wav"),
   "generated/Guitar_D#6.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_D#6.wav"),
@@ -39,6 +38,8 @@ const SAMPLE_SOURCES: Record<string, number> = {
   "generated/Guitar_F#4.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_F#4.wav"),
   "generated/Guitar_F#5.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_F#5.wav"),
   "generated/Guitar_F#6.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_F#6.wav"),
+  "generated/Guitar_F4.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_F4.wav"),
+  "generated/Guitar_F5.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_F5.wav"),
   "generated/Guitar_F6.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_F6.wav"),
   "generated/Guitar_G#4.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_G#4.wav"),
   "generated/Guitar_G#5.wav": require("../../assets/audio/DistortionGuitar/generated/Guitar_G#5.wav"),

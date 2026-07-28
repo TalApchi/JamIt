@@ -76,20 +76,20 @@ const INSTRUMENTS = {
     imageSize: { width: 1536, height: 1024 },
     shape: "rectangle",
     defaults: [
-      { degree: 1, sourceX: 218, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: true },
+      { degree: 1, sourceX: 218, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
       { degree: 2, sourceX: 314, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
       { degree: 3, sourceX: 411, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
       { degree: 4, sourceX: 507, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
       { degree: 5, sourceX: 604, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
       { degree: 6, sourceX: 700, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
-      { degree: 7, sourceX: 796, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
-      { degree: 8, sourceX: 893, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: true },
+      { degree: 7, sourceX: 796, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: true },
+      { degree: 8, sourceX: 893, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
       { degree: 9, sourceX: 989, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
       { degree: 10, sourceX: 1086, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
       { degree: 11, sourceX: 1182, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
       { degree: 12, sourceX: 1279, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
       { degree: 13, sourceX: 1375, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false },
-      { degree: 14, sourceX: 1471, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: false }
+      { degree: 14, sourceX: 1471, sourceY: 700, visibleRadius: 33, hitRadius: 40, visibleHeight: 213, hitHeight: 260, isRoot: true }
     ]
   }
 };

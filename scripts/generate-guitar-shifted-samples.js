@@ -1,14 +1,23 @@
 // Pre-renders a real WAV for every playable Distortion Guitar note (MIDI
-// 60..94, C4..B6 -- wider than every other instrument's 60..82 because the
+// 60..94, C4..A#6 -- wider than every other instrument's 60..82 because the
 // Distortion Guitar has 14 pads across two octave rows: the same scale
 // degrees at their normal octave PLUS the same degrees one octave higher,
-// so the combined range is [60..82] union [72..94] = [60..94]) that has no
-// exact recorded sample, by resampling the nearest recorded anchor by
-// 2^(shift/12) with a windowed-sinc (Lanczos) kernel -- the same
-// offline-rendering approach already used for the Flute/Kalimba/Melodica/
-// Synth Bass, and for the same reason: runtime playbackRate-based pitch
-// shifting was already confirmed unreliable on-device for the Melodica/
-// Piano, so this instrument goes straight to pre-rendering.
+// so the combined range is [60..82] union [72..94] = [60..94]), by
+// resampling the nearest recorded anchor by 2^(shift/12) with a
+// windowed-sinc (Lanczos) kernel -- the same offline-rendering approach
+// already used for the Flute/Kalimba/Melodica/Synth Bass, and for the same
+// reason: runtime playbackRate-based pitch shifting was already confirmed
+// unreliable on-device for the Melodica/Piano, so this instrument goes
+// straight to pre-rendering.
+//
+// Every one of the 35 notes is ALSO trimmed to TRIM_SECONDS with a short
+// linear fade-out (no click on cut) -- including the 7 notes that land
+// exactly on a recorded anchor (shift 0, no resampling needed). The pack's
+// raw recordings are looping-sustain guitar tones (several seconds long,
+// per the SFZ's loop points -- see distortionGuitarSampleData.ts); without
+// looping (AudioEngine never loops, for any instrument) they rang out for
+// several seconds after a tap, which the user found too long. Every note
+// therefore now comes from this script, not the raw asset directly.
 //
 // The pack (assets/audio/DistortionGuitar/) has an SFZ (031_DistortionGuitar.sfz)
 // confirming 12 real recordings spaced ~3-5 semitones apart (E2, A2, C#3,
@@ -53,7 +62,13 @@ const RECORDED = [
 ];
 
 const MIN_TARGET = 60; // C4 (lowest tonic, lower octave row)
-const MAX_TARGET = 94; // B6 (highest possible 7th degree, upper octave row)
+const MAX_TARGET = 94; // A#6 (highest possible 7th degree, upper octave row)
+
+// Roughly 1 second per the user's request ("2-3x shorter" than the
+// several-second raw recordings). FADE_SECONDS is a short linear fade-out
+// over the trimmed tail so the cut doesn't click.
+const TRIM_SECONDS = 1.0;
+const FADE_SECONDS = 0.06;
 
 function writeWav(filePath, samples, sampleRate) {
   const dataSize = samples.length * 2;
@@ -104,24 +119,37 @@ function resample(samples, ratio) {
   return out;
 }
 
+function trimWithFadeOut(samples, sampleRate, trimSeconds, fadeSeconds) {
+  const trimLength = Math.min(samples.length, Math.round(sampleRate * trimSeconds));
+  const fadeLength = Math.min(trimLength, Math.round(sampleRate * fadeSeconds));
+  const out = new Float64Array(trimLength);
+  for (let i = 0; i < trimLength; i++) out[i] = samples[i];
+  for (let i = 0; i < fadeLength; i++) {
+    const idx = trimLength - fadeLength + i;
+    out[idx] *= 1 - i / fadeLength;
+  }
+  return out;
+}
+
 fs.mkdirSync(outDir, { recursive: true });
-const recordedMidis = new Set(RECORDED.map((r) => r.midi));
 const generated = [];
 
 for (let target = MIN_TARGET; target <= MAX_TARGET; target++) {
-  if (recordedMidis.has(target)) continue; // exact recorded sample -- used directly, nothing to generate
-
   const source = RECORDED.reduce((best, r) => (Math.abs(target - r.midi) < Math.abs(target - best.midi) ? r : best));
   const shift = target - source.midi;
   const ratio = Math.pow(2, shift / 12);
   const noteName = midiToName(target);
 
-  const outName = `Guitar_${noteName}.wav`;
   const { sampleRate, samples } = parseWav(fs.readFileSync(path.join(kitDir, source.filename)));
-  const shifted = resample(samples, ratio);
-  writeWav(path.join(outDir, outName), shifted, sampleRate);
+  const pitched = shift === 0 ? samples : resample(samples, ratio);
+  const trimmed = trimWithFadeOut(pitched, sampleRate, TRIM_SECONDS, FADE_SECONDS);
+
+  const outName = `Guitar_${noteName}.wav`;
+  writeWav(path.join(outDir, outName), trimmed, sampleRate);
   generated.push({ target, note: noteName, outName, from: source.filename, shift });
-  console.log(`${outName}  (midi ${target}) <- ${source.filename} shift ${shift > 0 ? "+" : ""}${shift}`);
+  console.log(
+    `${outName}  (midi ${target}) <- ${source.filename} shift ${shift > 0 ? "+" : ""}${shift}, trimmed to ${(trimmed.length / sampleRate).toFixed(2)}s`
+  );
 }
 
 console.log(`\nGenerated ${generated.length} files into ${path.relative(projectRoot, outDir)}/`);

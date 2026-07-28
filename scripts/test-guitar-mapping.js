@@ -15,6 +15,10 @@
 //     shift as much as +10 semitones off their nearest anchor, the largest
 //     shift any instrument in this app uses, so this also confirms Lanczos
 //     resampling still holds up at that extreme).
+//  5. Every sample file is trimmed to ~1 second (all 35 come from
+//     scripts/generate-guitar-shifted-samples.js now, including the exact
+//     matches, specifically to cut short the raw pack's several-second
+//     looping-sustain recordings -- see that script's own comment).
 const fs = require("fs");
 const path = require("path");
 const { compileForTests } = require("./lib/compile-for-tests");
@@ -40,13 +44,15 @@ function check(label, condition) {
 }
 
 // Mirrors DistortionGuitarInstrument.tsx's resolveDegree exactly: pads 1-7
-// (left) play octave 5 (scale degree N, +1 octave); pads 8-14 (right) play
-// octave 4 (scale degree N-7, unshifted).
+// (left) play octave 5, descending scale degree left to right; pads 8-14
+// (right) play octave 4 the same way -- pitch rises continuously moving
+// right to left across the whole instrument, no reset at the row boundary.
 function resolveDegree(degree, scaleLength) {
   if (degree <= scaleLength) {
-    return { scaleIndex: degree - 1, octaveOffset: 1 };
+    return { scaleIndex: scaleLength - degree, octaveOffset: 1 };
   }
-  return { scaleIndex: degree - scaleLength - 1, octaveOffset: 0 };
+  const rightPosition = degree - scaleLength;
+  return { scaleIndex: scaleLength - rightPosition, octaveOffset: 0 };
 }
 
 // --- 1 + 2 + 3: resolution invariants for every scale and pad -------------
@@ -124,6 +130,15 @@ for (const def of DISTORTION_GUITAR_SAMPLE_DEFS) {
     `${def.filename}: catalog says MIDI ${def.midi} (${def.noteWithOctave}), audio measures ${detectedMidi.toFixed(2)} (${centsOff.toFixed(0)} cents off; tolerance 10)`,
     Math.abs(centsOff) <= 10
   );
+
+  // Every note is trimmed to ~1 second (the user found the raw multi-second
+  // recordings rang out too long); tolerance covers rounding to the nearest
+  // sample plus the short fade-out window.
+  const durationSeconds = samples.length / sampleRate;
+  check(
+    `${def.filename}: trimmed to ~1 second (actual ${durationSeconds.toFixed(2)}s)`,
+    durationSeconds <= 1.1
+  );
 }
 
 if (failures > 0) {
@@ -131,5 +146,5 @@ if (failures > 0) {
   process.exit(1);
 }
 console.log(
-  `Distortion Guitar mapping tests passed: 24 scales x 14 pads all resolve to EXACT samples (shift 0, rate 1.0), left row always +12 vs right row, distinct + in-scale pitches, all scale sound-sets pairwise different, ${DISTORTION_GUITAR_SAMPLE_DEFS.length} sample defs pitch-verified against their WAV audio.`
+  `Distortion Guitar mapping tests passed: 24 scales x 14 pads all resolve to EXACT samples (shift 0, rate 1.0), left row always +12 vs right row, distinct + in-scale pitches, all scale sound-sets pairwise different, ${DISTORTION_GUITAR_SAMPLE_DEFS.length} sample defs pitch-verified and duration-verified (~1s) against their WAV audio.`
 );

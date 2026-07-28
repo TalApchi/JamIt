@@ -9,7 +9,7 @@
       "hitRadius": 40,
       "visibleHeight": 213,
       "hitHeight": 260,
-      "isRoot": true
+      "isRoot": false
     },
     {
       "degree": 2,
@@ -69,7 +69,7 @@
       "hitRadius": 40,
       "visibleHeight": 213,
       "hitHeight": 260,
-      "isRoot": false
+      "isRoot": true
     },
     {
       "degree": 8,
@@ -79,7 +79,7 @@
       "hitRadius": 40,
       "visibleHeight": 213,
       "hitHeight": 260,
-      "isRoot": true
+      "isRoot": false
     },
     {
       "degree": 9,
@@ -139,7 +139,7 @@
       "hitRadius": 40,
       "visibleHeight": 213,
       "hitHeight": 260,
-      "isRoot": false
+      "isRoot": true
     }
   ]
 }
