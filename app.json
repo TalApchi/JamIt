@@ -5,16 +5,37 @@
     "version": "0.1.0",
     "orientation": "default",
     "userInterfaceStyle": "dark",
+    "icon": "./assets/app-icon/icon.png",
     "assetBundlePatterns": [
       "assets/**/*"
     ],
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.talapchi.jamit"
     },
     "android": {
+      "package": "com.talapchi.jamit",
       "adaptiveIcon": {
+        "foregroundImage": "./assets/app-icon/adaptive-icon.png",
         "backgroundColor": "#0a0a08"
       }
-    }
+    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/app-icon/splash.png",
+          "imageWidth": 220,
+          "resizeMode": "contain",
+          "backgroundColor": "#090b08"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e985f451-ef30-4ed5-b2ce-82e63145177a"
+      }
+    },
+    "owner": "talapchi15"
   }
 }
