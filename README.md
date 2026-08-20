@@ -1,8 +1,7 @@
 # \# JamIt
 
-# 
 
-# JamIt is an interactive mobile music app that turns your phone into a collection of playable virtual instruments.
+ JamIt is an interactive mobile music app that turns your phone into a collection of playable virtual instruments.
 
 # 
 
@@ -16,27 +15,27 @@
 
 # \- Five playable virtual instruments:
 
-# &#x20; - Bamboo Flute
+ &#x20; - Bamboo Flute
 
-# &#x20; - Kalimba
+ &#x20; - Kalimba
 
-# &#x20; - Melodica
+ &#x20; - Melodica
 
-# &#x20; - Distortion Guitar
+ &#x20; - Distortion Guitar
 
-# &#x20; - Synth Bass
+ &#x20; - Synth Bass
 
-# \- Multi-touch support for playing multiple notes simultaneously
+ \- Multi-touch support for playing multiple notes simultaneously
 
-# \- Support for all major and natural minor scales
+ \- Support for all major and natural minor scales
 
-# \- Sustained notes through long-press gestures
+ \- Sustained notes through long-press gestures
 
-# \- Smooth transitions between notes
+ \- Smooth transitions between notes
 
-# \- Instrument-specific sounds and visual interfaces
+ \- Instrument-specific sounds and visual interfaces
 
-# \- Android support through Expo
+ \- Android support through Expo
 
 # 
 
@@ -44,11 +43,11 @@
 
 # 
 
-# \- React Native
+ \- React Native
 
-# \- Expo
+ \- Expo
 
-# \- TypeScript
+ \- TypeScript
 
 # \- Expo Audio
 
@@ -66,13 +65,13 @@
 
 # 
 
-# \- Node.js
+ \- Node.js
 
-# \- npm
+ \- npm
 
-# \- Git
+ \- Git
 
-# \- Expo Go installed on an Android device
+ \- Expo Go installed on an Android device
 
 # 
 
@@ -80,27 +79,24 @@
 
 # 
 
-# 1\. Clone the repository:
+ 1\. Clone the repository:
 
 # 
+ bash
+ git clone https://github.com/TalApchi/JamIt.git
 
-# ```bash
+ 
 
-# git clone https://github.com/TalApchi/JamIt.git
+ 
 
-# ```
+ 2\. Enter the project directory:
 
-# 
+ 
 
-# 2\. Enter the project directory:
 
-# 
 
-# ```bash
+ cd JamIt
 
-# cd JamIt
-
-# ```
 
 # 
 
@@ -108,11 +104,11 @@
 
 # 
 
-# ```bash
 
-# npm install
 
-# ```
+ npm install
+
+
 
 # 
 
@@ -120,9 +116,9 @@
 
 # 
 
-# ```bash
 
-# npx expo-doctor
+
+ npx expo-doctor
 
 # ```
 
@@ -132,11 +128,11 @@
 
 # 
 
-# ```bash
 
-# npx expo start
 
-# ```
+ npx expo start
+
+
 
 # 
 
@@ -154,17 +150,17 @@
 
 # ```bash
 
-# cd %TEMP%
+ cd %TEMP%
 
-# git clone https://github.com/TalApchi/JamIt.git JamIt-clean-test
+ git clone https://github.com/TalApchi/JamIt.git JamIt-clean-test
 
-# cd JamIt-clean-test
+ cd JamIt-clean-test
 
-# npm install
+ npm install
 
-# npx expo-doctor
+ npx expo-doctor
 
-# npx expo start --clear
+ npx expo start --clear
 
 # ```
 
@@ -174,7 +170,7 @@
 
 # 
 
-# JamIt is a personal project created to explore mobile development, interactive audio, multi-touch input and accessible digital musical instruments.
+ JamIt is a personal project created to explore mobile development, interactive audio, multi-touch input and accessible digital musical instruments.
 
 # 
 
@@ -182,17 +178,17 @@
 
 # 
 
-# \- Touch-area calibration
+ \- Touch-area calibration
 
-# \- Audio playback and note mapping
+ \- Audio playback and note mapping
 
-# \- Multi-touch interaction
+ \- Multi-touch interaction
 
-# \- Scale-to-note conversion
+ \- Scale-to-note conversion
 
-# \- Instrument-specific interaction patterns
+ \- Instrument-specific interaction patterns
 
-# \- Android application builds using Expo and EAS
+ \- Android application builds using Expo and EAS
 
 # 
 
