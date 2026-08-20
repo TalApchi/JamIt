@@ -30,3 +30,12 @@ yarn-error.*
 
 # Env
 .env*.local
+
+debug/
+docs/superpowers/
+ideas for screen/
+selected/
+debug.txt
+favorite-continuation.html
+generate_favorite_continuation.py
+generate_wind_exploration.py
