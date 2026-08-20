@@ -1,6 +1,6 @@
 # JamIt
 
-JamIt is an interactive mobile music app that turns the screen into a playable virtual instrument.
+JamIt is an interactive mobile music app that turns the screen into a playable virtual instrument, allowing any person join a jam session without previous knowledge.
 
 ## Features
 
