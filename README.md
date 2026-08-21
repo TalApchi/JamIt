@@ -1,200 +1,1 @@
-# \# JamIt
-
-
- JamIt is an interactive mobile music app that turns your phone into a collection of playable virtual instruments.
-
-# 
-
-# The app is designed to let anyone join a jam session, even without previous musical experience.
-
-# 
-
-# \## Features
-
-# 
-
-# \- Five playable virtual instruments:
-
- &#x20; - Bamboo Flute
-
- &#x20; - Kalimba
-
- &#x20; - Melodica
-
- &#x20; - Distortion Guitar
-
- &#x20; - Synth Bass
-
- \- Multi-touch support for playing multiple notes simultaneously
-
- \- Support for all major and natural minor scales
-
- \- Sustained notes through long-press gestures
-
- \- Smooth transitions between notes
-
- \- Instrument-specific sounds and visual interfaces
-
- \- Android support through Expo
-
-# 
-
-# \## Built With
-
-# 
-
- \- React Native
-
- \- Expo
-
- \- TypeScript
-
-# \- Expo Audio
-
-# 
-
-# \## Getting Started
-
-# 
-
-# \### Requirements
-
-# 
-
-# Before running the project, make sure you have:
-
-# 
-
- \- Node.js
-
- \- npm
-
- \- Git
-
- \- Expo Go installed on an Android device
-
-# 
-
-# \### Installation
-
-# 
-
- 1\. Clone the repository:
-
-# 
- bash
- git clone https://github.com/TalApchi/JamIt.git
-
- 
-
- 
-
- 2\. Enter the project directory:
-
- 
-
-
-
- cd JamIt
-
-
-# 
-
-# 3\. Install the dependencies:
-
-# 
-
-
-
- npm install
-
-
-
-# 
-
-# 4\. Check the project configuration:
-
-# 
-
-
-
- npx expo-doctor
-
-# ```
-
-# 
-
-# 5\. Start the application:
-
-# 
-
-
-
- npx expo start
-
-
-
-# 
-
-# 6\. Scan the displayed QR code using Expo Go on your Android device.
-
-# 
-
-# \## Testing a Clean Installation
-
-# 
-
-# To verify that the application works using only the files available on GitHub:
-
-# 
-
-# ```bash
-
- cd %TEMP%
-
- git clone https://github.com/TalApchi/JamIt.git JamIt-clean-test
-
- cd JamIt-clean-test
-
- npm install
-
- npx expo-doctor
-
- npx expo start --clear
-
-# ```
-
-# 
-
-# \## About the Project
-
-# 
-
- JamIt is a personal project created to explore mobile development, interactive audio, multi-touch input and accessible digital musical instruments.
-
-# 
-
-# The development process included:
-
-# 
-
- \- Touch-area calibration
-
- \- Audio playback and note mapping
-
- \- Multi-touch interaction
-
- \- Scale-to-note conversion
-
- \- Instrument-specific interaction patterns
-
- \- Android application builds using Expo and EAS
-
-# 
-
-# \## Project Status
-
-# 
-
-# JamIt is an experimental project and is currently under development.
-
+# \# JamIt# # JamIt is an interactive mobile music app that turns your phone screen into a playable virtual instrument. It allows users to explore music and join a jam session without requiring previous musical experience.# # \## Features# # \* Five playable virtual instruments:# # &#x20; \* Bamboo Flute# &#x20; \* Kalimba# &#x20; \* Melodica# &#x20; \* Distortion Guitar# &#x20; \* Synth Bass# \* Major and natural minor scale selection# \* Support for multiple root notes# \* Multi-touch controls# \* Sustained notes using long presses# \* Smooth transitions between notes# \* Interactive visual interface# \* Designed for Android devices# # \## Screenshots# # \## Screenshots# # <p align="center"># &#x20; <img src="screenshots/home.png" width="250" alt="JamIt home screen"># &#x20; <img src="screenshots/instrument.png" width="250" alt="Playable instrument"># &#x20; <img src="screenshots/scale-selection.png" width="250" alt="Scale selection"># </p># \## Built With# # \* React Native# \* Expo# \* TypeScript# \* Expo Audio# # \## How to Run the Project# # \### Requirements# # Before running the project, make sure you have installed:# # \* Node.js# \* npm# \* Expo Go on an Android device, or an Android emulator# # \### Installation# # Clone the repository:# # ```bash# git clone https://github.com/TalApchi/JamIt.git# ```# # Enter the project folder:# # ```bash# cd JamIt# ```# # Install the required packages:# # ```bash# npm install# ```# # Start the Expo development server:# # ```bash# npx expo start# ```# # Scan the QR code using Expo Go on your Android device.# # If the phone cannot connect through the local network, try:# # ```bash# npx expo start --tunnel# ```# # \## Project Status# # JamIt is a personal learning project and is currently under development. Features, design and compatibility may continue to change.# # \## About the Project# # JamIt was created as a personal project to explore mobile application development, interactive audio, multi-touch input and digital musical instruments.# # The project gave me practical experience working with React Native, TypeScript, audio playback, touch controls and mobile user-interface development.# 
